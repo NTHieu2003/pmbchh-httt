@@ -1,0 +1,171 @@
+import { StyleSheet } from 'react-native';
+
+import { APP_COLORS } from '@/theme';
+import { APP_SPACING, CONTENT_MAX_WIDTH, FontSize, Radius } from '@/utils';
+
+export const chatbotGuideScreenStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: APP_COLORS.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: APP_SPACING.sm,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.sm,
+    backgroundColor: APP_COLORS.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: APP_COLORS.chatBorder,
+  },
+  menuButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: APP_COLORS.textPrimary,
+  },
+  scrollContent: {
+    alignItems: 'center',
+    paddingVertical: APP_SPACING.lg,
+    paddingBottom: APP_SPACING.xxl,
+  },
+  column: {
+    width: '100%',
+    maxWidth: CONTENT_MAX_WIDTH,
+    paddingHorizontal: APP_SPACING.lg,
+    gap: APP_SPACING.md,
+  },
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: APP_SPACING.xs,
+    backgroundColor: APP_COLORS.surface,
+    borderWidth: 1,
+    borderColor: APP_COLORS.chatBorder,
+    borderRadius: Radius.lg,
+    height: 52,
+    paddingHorizontal: APP_SPACING.sm + APP_SPACING.xxs,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: FontSize.sm,
+    color: APP_COLORS.textPrimary,
+    padding: 0,
+  },
+  clearButton: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: APP_COLORS.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  generalCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: APP_SPACING.sm + APP_SPACING.xxs,
+    backgroundColor: APP_COLORS.surface,
+    borderWidth: 1,
+    borderColor: APP_COLORS.chatBorder,
+    borderRadius: Radius.xl,
+    padding: APP_SPACING.md,
+  },
+  generalIconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: APP_COLORS.chatSidebarSoftBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  generalTextWrap: {
+    flex: 1,
+  },
+  generalTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '700',
+    color: APP_COLORS.textPrimary,
+  },
+  generalSubtitle: {
+    fontSize: FontSize.xs,
+    color: APP_COLORS.chatSubtitle,
+    marginTop: 4,
+  },
+  generalActions: {
+    flexDirection: 'row',
+    gap: APP_SPACING.xs,
+  },
+  generalButtonFilled: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: APP_COLORS.chatBrandRed,
+    borderRadius: Radius.md,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.xs,
+  },
+  generalButtonFilledText: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    color: APP_COLORS.white,
+  },
+  generalButtonOutline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: APP_COLORS.surface,
+    borderWidth: 1.5,
+    borderColor: APP_COLORS.chatBrandRed,
+    borderRadius: Radius.md,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.xs,
+  },
+  generalButtonOutlineText: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    color: APP_COLORS.chatBrandRed,
+  },
+  sectionLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: APP_SPACING.xs,
+  },
+  sectionLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    color: APP_COLORS.textPrimary,
+  },
+  sectionCount: {
+    fontSize: FontSize.xs,
+    color: APP_COLORS.chatIconMuted,
+  },
+  faqList: {
+    gap: APP_SPACING.sm,
+  },
+  loadingBox: {
+    paddingVertical: APP_SPACING.xxl,
+    alignItems: 'center',
+  },
+  emptyState: {
+    backgroundColor: APP_COLORS.surface,
+    borderWidth: 1,
+    borderColor: APP_COLORS.chatBorder,
+    borderRadius: Radius.lg,
+    paddingVertical: APP_SPACING.xxl,
+    paddingHorizontal: APP_SPACING.lg,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: FontSize.sm,
+    color: APP_COLORS.chatSubtitle,
+    marginTop: APP_SPACING.sm,
+    textAlign: 'center',
+  },
+});
