@@ -82,7 +82,7 @@ export const activeContributorsListStyles = StyleSheet.create({
     paddingRight: APP_SPACING.sm,
   },
   colDate: {
-    width: 130,
+    width: 140,
     textAlign: 'center',
   },
   rankBadge: {

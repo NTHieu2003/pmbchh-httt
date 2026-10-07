@@ -3,10 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DepartmentApi } from '@/api/department';
 import { VanbanphapquyApi } from '@/api/vanbanphapquy';
 
-import { STATIC_ACTIVE_CONTRIBUTORS, STATIC_DATA_TYPE_STATS } from './buildStatsStatic';
 import { buildDepartmentStats, buildSummary } from './statsCompute';
-
-import type { ActiveContributor, DataTypeStat } from './buildStatsStatic';
 
 import type { DepartmentVanBanStats, StatsSummary } from './statsCompute';
 
@@ -47,12 +44,6 @@ export interface UseDashboardDataProgressResult {
   selectedUnit: DepartmentVanBanStats | null;
   openUnitDetail: (unit: DepartmentVanBanStats) => void;
   closeUnitDetail: () => void;
-
-  // Bottom-of-page sections — static until the backend APIs exist (see
-  // buildStatsStatic.ts); `isSampleData` drives the "Dữ liệu mẫu" chip.
-  dataTypeStats: DataTypeStat[];
-  activeContributors: ActiveContributor[];
-  isSampleData: boolean;
 }
 
 // Mirrors pmbc_web's ThongKeVanbanphapquyComponent — no dedicated stats
@@ -212,9 +203,5 @@ export const useDashboardDataProgress = (): UseDashboardDataProgressResult => {
     selectedUnit,
     openUnitDetail,
     closeUnitDetail,
-
-    dataTypeStats: STATIC_DATA_TYPE_STATS,
-    activeContributors: STATIC_ACTIVE_CONTRIBUTORS,
-    isSampleData: true,
   };
 };

@@ -9,6 +9,8 @@ import queryString from 'query-string';
 import { env } from '@/constants';
 import { useAuthStore } from '@/stores';
 
+import { getCurrentFeatureUrl } from './featureUrl';
+
 // The `smta.lqdtu.edu.vn/gateway_bchh` host already terminates at the
 // gateway, so endpoint paths hardcoded with a leading `/gateway` (written
 // against the old `103.124.94.201:8888` host, where `/gateway` is required)
@@ -48,6 +50,11 @@ export const axiosInstance = (baseURL?: string): AxiosInstance => {
       const token = useAuthStore.getState().token;
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      const featureUrl = getCurrentFeatureUrl();
+      if (featureUrl) {
+        config.headers['X-Feature-Url'] = featureUrl;
       }
 
       if (stripGatewayPrefix && config.url?.startsWith(GATEWAY_PREFIX)) {

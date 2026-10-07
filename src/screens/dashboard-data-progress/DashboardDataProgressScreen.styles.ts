@@ -85,6 +85,20 @@ export const dashboardDataProgressScreenStyles = StyleSheet.create({
   },
   // Chart + active-users list side by side; wraps to stacked on narrow
   // widths (each card sets its own flexBasis/minWidth).
+  // Caption above the two period-based sections (the rest of the screen is
+  // all-time).
+  periodText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: APP_COLORS.chatSubtitle,
+  },
+  // Loading / error placeholder standing in for `bottomRow`.
+  sectionStateBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.xl,
+  },
   bottomRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',

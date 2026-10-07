@@ -5,8 +5,11 @@ import RNFS from 'react-native-fs';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
 import { appAlert } from '@/components/AppDialog';
+import { HtmlDocViewerModal, type HtmlDocViewerFile } from '@/components/HtmlDocViewerModal';
 import { APP_COLORS } from '@/theme';
 import {
+  buildImpactReportDocHtml,
+  buildImpactReportFileName,
   buildResponsePlanDocHtml,
   buildResponsePlanFileName,
   getEvacBearing1,
@@ -62,6 +65,7 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingDoc, setIsExportingDoc] = useState(false);
   const [isImpactModalOpen, setIsImpactModalOpen] = useState(false);
+  const [docPreview, setDocPreview] = useState<HtmlDocViewerFile | null>(null);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
 
   // The WebView fully reloads on every new run (keyed on `resultVersion`),
@@ -155,24 +159,47 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
     }
   };
 
-  // "Xuất PA ứng phó" — matches web's exportResponsePlanDocx: the classic
-  // HTML-saved-as-.doc trick (Word's legacy HTML import filter opens it
-  // fine), no server call or OOXML library needed — plain text, so written
-  // directly via RNFS instead of round-tripping through base64.
-  const onExportResponsePlan = async () => {
-    if (!result || isExportingDoc) return;
+  // Both .doc exports are the classic HTML-saved-as-.doc trick (Word's
+  // legacy HTML import filter opens it fine), no server call or OOXML
+  // library needed — plain text, so written directly via RNFS instead of
+  // round-tripping through base64. On success the saved document opens in
+  // the in-app preview (the same HTML in a WebView); whichever dialog the
+  // export was started from is closed first so two native Modals never stack.
+  const saveDocToDownloads = async (fileName: string, docHtml: string, errorMessage: string) => {
+    if (isExportingDoc) return;
     setIsExportingDoc(true);
     try {
-      const docHtml = buildResponsePlanDocHtml(result);
-      const fileName = buildResponsePlanFileName(result);
       const dir = RNFS.DownloadDirectoryPath || RNFS.DocumentDirectoryPath;
-      await RNFS.writeFile(`${dir}/${fileName}`, `﻿${docHtml}`, 'utf8');
-      appAlert('Xuất văn bản thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
+      await RNFS.writeFile(`${dir}/${fileName}`, `\ufeff${docHtml}`, 'utf8');
+      setIsImpactModalOpen(false);
+      setIsResponseModalOpen(false);
+      setDocPreview({ fileName, html: docHtml });
     } catch {
-      appAlert('Lỗi', 'Không thể xuất văn bản phương án ứng phó.');
+      appAlert('Lỗi', errorMessage);
     } finally {
       setIsExportingDoc(false);
     }
+  };
+
+  // "Xuất PA ứng phó" — matches web's exportResponsePlanDocx.
+  const onExportResponsePlan = () => {
+    if (!result) return;
+    saveDocToDownloads(
+      buildResponsePlanFileName(result),
+      buildResponsePlanDocHtml(result),
+      'Không thể xuất văn bản phương án ứng phó.'
+    );
+  };
+
+  // "Xuất báo cáo Word (.doc)" in the impact modal — matches web's
+  // exportDetailedReportDocx.
+  const onExportImpactReport = () => {
+    if (!result) return;
+    saveDocToDownloads(
+      buildImpactReportFileName(result),
+      buildImpactReportDocHtml(result, domainBounds),
+      'Không thể xuất báo cáo vùng ảnh hưởng.'
+    );
   };
 
   if (!result) {
@@ -286,6 +313,8 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
         onClose={() => setIsImpactModalOpen(false)}
         result={result}
         domainBounds={domainBounds}
+        isExportingDoc={isExportingDoc}
+        onExportDoc={onExportImpactReport}
       />
       <Map2DResponseModal
         visible={isResponseModalOpen}
@@ -294,6 +323,7 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
         isExportingDoc={isExportingDoc}
         onExportDoc={onExportResponsePlan}
       />
+      <HtmlDocViewerModal file={docPreview} onClose={() => setDocPreview(null)} />
     </View>
   );
 };

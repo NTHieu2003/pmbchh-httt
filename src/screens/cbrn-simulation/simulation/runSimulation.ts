@@ -153,7 +153,7 @@ export function runSimulation({
       ];
       diameterForRic = 6.0;
       const steps = reduceTimesteps([0], [0], 5);
-      return finishSimulation(steps, chem, T_use, U10, Ustar, stability, decisionPath, diameterForRic, windDirTo, sourceLat, sourceLon);
+      return finishSimulation(steps, chem, T_use, U10, Ustar, stability, decisionPath, diameterForRic, windDirTo, sourceLat, sourceLon, scenario);
     }
 
     const vpEst = vaporPressureAtTemperature(chem, T_use);
@@ -307,7 +307,8 @@ export function runSimulation({
       diameterForRic,
       windDirTo,
       sourceLat,
-      sourceLon
+      sourceLon,
+      scenario
     );
   }
 
@@ -323,7 +324,8 @@ export function runSimulation({
     diameterForRic,
     windDirTo,
     sourceLat,
-    sourceLon
+    sourceLon,
+    scenario
   );
 }
 
@@ -338,7 +340,8 @@ function finishSimulation(
   diameterForRic: number,
   windDirTo: number,
   sourceLat: number,
-  sourceLon: number
+  sourceLon: number,
+  scenario: ScenarioKey
 ): SimulationResult {
   const Qpeak = Math.max(...steps.map((s) => s.rate));
   const vpAtT_use = vaporPressureAtTemperature(chem, T_use).P;
@@ -408,5 +411,6 @@ function finishSimulation(
     sourceLat: Number(sourceLat) || 21.0285,
     sourceLon: Number(sourceLon) || 105.8542,
     ambientTemp: T_use,
+    scenario,
   };
 }

@@ -142,12 +142,17 @@ function generateResponsePlanBody(result: SimulationResult): string {
 // .doc extension" trick: Word's legacy HTML import filter opens this fine,
 // no real OOXML/.docx binary format (or a doc-generation library) needed.
 export function buildResponsePlanDocHtml(result: SimulationResult): string {
-  const body = generateResponsePlanBody(result);
+  return buildWordDocHtml('Phương án ứng phó sự cố khẩn cấp', generateResponsePlanBody(result));
+}
+
+// Shared by every .doc export of this screen — web repeats the same
+// wrapper/CSS in exportResponsePlanDocx() and exportDetailedReportDocx().
+export function buildWordDocHtml(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
 <head>
   <meta charset='utf-8'>
-  <title>Phương án ứng phó sự cố khẩn cấp</title>
+  <title>${title}</title>
   <style>
     @page { size: A4; margin: 20mm 20mm 20mm 20mm; }
     body { font-family: 'Times New Roman', serif; font-size: 13pt; line-height: 1.35; color: #000; }
@@ -171,9 +176,11 @@ export function buildResponsePlanDocHtml(result: SimulationResult): string {
 </html>`;
 }
 
-// Matches web's fileName (mophongphattan.component.ts:3491-3493).
+// Web's fileName (mophongphattan.component.ts:3491-3493) plus a Date.now()
+// suffix — a re-export must never collide with a stale file in Downloads
+// (Android scoped-storage EACCES, see HANDOFF §6.22).
 export function buildResponsePlanFileName(result: SimulationResult): string {
   const chemName = (result.chem.name || 'hoachat').replace(/[^a-zA-Z0-9]/g, '_');
   const nowStr = new Date().toISOString().slice(0, 10);
-  return `Phuong_an_ung_pho_su_co_${chemName}_${nowStr}.doc`;
+  return `Phuong_an_ung_pho_su_co_${chemName}_${nowStr}_${Date.now()}.doc`;
 }

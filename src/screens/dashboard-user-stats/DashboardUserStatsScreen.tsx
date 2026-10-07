@@ -24,11 +24,18 @@ import KpiCard from './KpiCard';
 import TopListCard from './TopListCard';
 import { useDashboardUserStats } from './useDashboardUserStats.hook';
 
-import type { FeatureUsageStat } from './featureUsageStatic';
 import type { TopListColumn } from './TopListCard';
+import type { TopChucNangItem } from '@/types';
 
-const featureUsageItems = (stats: FeatureUsageStat[]) =>
-  stats.map((s) => ({ key: s.code, label: s.label, value: s.count }));
+// `duongDan` is the feature's identity key; `tyLe` is its share of ALL
+// feature-attributed actions in the period (not just these 10 rows).
+const topChucNangItems = (list: TopChucNangItem[]) =>
+  list.map((item, index) => ({
+    key: item.duongDan || String(item.sttExport ?? index),
+    label: item.tenChucNang || item.duongDan || '—',
+    value: item.soThaoTac ?? 0,
+    share: item.tyLe,
+  }));
 
 const DON_VI_COLUMNS: TopListColumn[] = [
   { key: 'rank', label: '#', flex: 0.6, render: (item) => String(item.sttExport ?? '') },
@@ -55,6 +62,7 @@ const DashboardUserStatsScreen: React.FC = () => {
   const navigation = useNavigation();
   const {
     isLoading,
+    isError,
     kpi,
     lstTheoDonVi,
     lstTheoNguoiDung,
@@ -71,8 +79,7 @@ const DashboardUserStatsScreen: React.FC = () => {
     onClearDonVi,
     doSearch,
     doRefresh,
-    featureUsage,
-    isFeatureUsageSample,
+    topChucNang,
   } = useDashboardUserStats();
 
   return (
@@ -92,6 +99,14 @@ const DashboardUserStatsScreen: React.FC = () => {
       {isLoading ? (
         <View style={styles.loadingBox}>
           <ActivityIndicator color={APP_COLORS.chatBrandRed} />
+        </View>
+      ) : isError ? (
+        <View style={styles.loadingBox}>
+          <Text style={styles.errorText}>Không thể tải dữ liệu thống kê.</Text>
+          <TouchableOpacity style={styles.searchButton} onPress={doSearch}>
+            <RefreshCw size={16} color={APP_COLORS.white} />
+            <Text style={styles.searchButtonText}>Thử lại</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         // Scrolls as a whole: filter bar, KPI row, the two Top-5 tables
@@ -185,10 +200,10 @@ const DashboardUserStatsScreen: React.FC = () => {
           </View>
 
           <HorizontalBarChart
-            title="Loại chức năng hay được sử dụng"
-            items={featureUsageItems(featureUsage)}
-            unit="lượt sử dụng"
-            isSample={isFeatureUsageSample}
+            title="Top 10 chức năng được sử dụng nhiều nhất"
+            items={topChucNangItems(topChucNang)}
+            unit="lượt thao tác"
+            emptyText="Chưa có dữ liệu chức năng trong kỳ."
             labelWidth={220}
           />
         </ScrollView>
