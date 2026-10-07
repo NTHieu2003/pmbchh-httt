@@ -16,7 +16,7 @@ a Java/Spring backend (**tnd_java_angular/fw-service**). This repo does not cont
 those — they're separate repos/checkouts that need to be available locally (sibling directories
 on the machine doing the work, paths vary per setup) whenever a feature needs to be verified
 against web/backend source instead of guessed:
-T
+
 - **`pmbc_web`** (Angular admin system) — the source of truth for every feature being ported.
   When in doubt about an API contract or business rule, **read pmbc_web's source first**, don't
   guess. Angular app lives under `tnd_angular_web/admin/projects/web-admin/src/app/` inside that
@@ -328,6 +328,19 @@ chemical → atmosphere → source location → scenario) + a result view on the
     "Xuất Word (.doc)" footer button (`Map2DResponseModal.tsx`). Written via
     `RNFS.writeFile(path, '\ufeff' + docHtml, 'utf8')` (direct text write, not base64 — the
     content is plain HTML, not a binary blob).
+  - **"Xuất báo cáo Word (.doc)" — báo cáo chi tiết vùng ảnh hưởng** (added 2026-10-07):
+    `simulation/impactReportDoc.ts` — `buildImpactReportDocHtml(result, domainBounds)` (body
+    ported 1:1 from web's `generateReportHtml()`, wrapper shared with the response plan via
+    `buildWordDocHtml` in `responsePlanDoc.ts`) + `buildImpactReportFileName(result)` (web's
+    name plus a `Date.now()` suffix). Entry point: footer button of `Map2DImpactModal.tsx`
+    (web also has it on the toolbar and an "In báo cáo" print button — neither ported). **.doc
+    only — a PDF variant was built and removed the same day per explicit user request; web has
+    no PDF export for this report either.** `SimulationResult` now carries `scenario` (web reads
+    its live `currentScenario`) for the report's "Kịch bản sự cố" row.
+  - **Both .doc exports** ("Xuất PA ứng phó" and the impact report) go through
+    `saveDocToDownloads` in `Map2DView.tsx`: write to Downloads with a `Date.now()`-suffixed
+    name, close whichever dialog started the export (so two native Modals never stack), then
+    open the same HTML in `HtmlDocViewerModal` instead of a success alert.
 - Threat-zone plume (non-map view): SVG rendering via `react-native-svg` in
   `resultView/ThreatZoneView.tsx`.
 - `formSidebar/` — 4 `FormCard`s + `FormSidebar.tsx` (collapsible, 340px/52px). Uses
@@ -408,6 +421,10 @@ streamed live text is kept as-is (not re-transcribed) — see §3.
   writes the file to Downloads, then opens it here instead of showing a success Alert (hooks expose
   `pdfPreview`/`closePdfPreview`). The file stays in Downloads after closing. Excel exports keep the
   Alert. **Reuse this for any future PDF export.**
+- `HtmlDocViewerModal` — in-app preview for a "HTML saved as .doc" export
+  (`file: { fileName, html } | null`): renders the document's HTML in a WebView inside the same
+  xl/90%-height `AppModal` shell as `PdfViewerModal` (react-native-pdf can't open .doc). Preview
+  only — the file stays in Downloads. **Reuse this for any future HTML-based .doc export.**
 - **`AppModal` + `AppModalButton`** (`src/components/AppModal/`) — the ONE dialog shell for the whole
   app (since 2026-10-07 every dialog uses it; no raw `<Modal>` outside it and `AppPopover`). White
   card (radius 20, shadow), header with tinted icon chip + title + subtitle + round close button,
@@ -619,25 +636,50 @@ the root cause in §6.
 - [ ] **CBRN map image export** (html2canvas): open the PNG and confirm tiles, drawn polygons and
   station markers are all present.
 - [ ] **"Xuất PA ứng phó" (.doc)**: file opens correctly in Word on-device, from both the toolbar
-  button and the response-plan modal's footer button.
+  button and the response-plan modal's footer button; the in-app preview opens after saving.
 
+- [ ] **"Xuất Word (.doc)"** in the "Xem vùng ảnh hưởng" modal: file lands in Downloads, the
+  in-app preview opens, and the file opens correctly in Word, with and without a drawn simulation
+  domain. Known display issue to check against web: the modal and the report print
+  `result.chem.mw` as "0.07091 g/mol" for Chlorine while the form sidebar shows 70.91 g/mol.
+- [ ] **Dashboard statistics APIs (CN124/CN125)**: "Top 10 chức năng" chart, "Loại dữ liệu đã được
+  xây dựng" and "Người dùng tích cực" load real data when logged in; error + "Thử lại" states;
+  actions done in the app show up in Top 10 under the right feature (`X-Feature-Url`).
 - [ ] **Dialog redesign (AppModal/appAlert, 2026-10-07)** — verified on-device: logout confirm,
   export success, PDF viewer, domain detail, CBRN attach, meeting plan info (incl. seating tab).
   Still to check: two-finger pinch on the seating chart inside the new shell, an `appAlert` on top
   of an open dialog (e.g. CBRN attach → Lưu → success), meeting-room dialogs (agenda/documents/
   speech/create-speech, need a live meeting), Map2D impact/response dialogs, guide video viewer.
 
-**Waiting on backend API (static data for now):** "Tiến độ dữ liệu" screen's two bottom sections —
-`DataTypeChart` (bar chart of document types built) and `ActiveContributorsList` (most active
-users). Data comes from `dashboard-data-progress/buildStatsStatic.ts` via
-`useDashboardDataProgress` (`dataTypeStats`, `activeContributors`, `isSampleData` → "Dữ liệu mẫu"
-chip). When the user provides the APIs: fetch in the hook, set `isSampleData: false`, delete the
-static constants — the components only depend on the `DataTypeStat`/`ActiveContributor` types.
-Same for "Dashboard người dùng"'s bottom chart "Loại chức năng hay được sử dụng":
-`dashboard-user-stats/featureUsageStatic.ts` → `useDashboardUserStats` (`featureUsage`,
-`isFeatureUsageSample`); the real API should honor the screen's Từ ngày/Đến ngày/Đơn vị filter.
-That screen now scrolls as a whole (`ScrollView`, `keyboardShouldPersistTaps="handled"` for the
-AppSelect dropdown) and its Top-5 `bottomRow` has a fixed `height: 420` — it can't `flex: 1`
+**Dashboard statistics APIs — wired to the backend specs CN124/CN125 on 2026-10-07 (PDFs supplied
+by the user; the local pmbc_web/fw-service checkout predates them, so the PDFs are the source of
+truth). Not yet verified against a live server or on-device:**
+- All three live under `/gateway/apidashboarduser` (`src/api/apidashboarduser/`): `getData`,
+  `getLoaiDuLieu`, `getNguoiDungTichCuc`. Shared request `{ fromDate, toDate, deptCode, limit }`,
+  dates sent as Vietnam-offset day strings via `toVnDayIso` (`2026-10-07T00:00:00+07:00`).
+- **`result.code` must be `"00"`** — server errors (and a missing Authorization header) come back
+  as HTTP 200 with `"000"` and no data. The API module rejects on anything else so the screens show
+  an error + "Thử lại" instead of an empty dashboard.
+- "Dashboard người dùng": chart "Top 10 chức năng được sử dụng nhiều nhất" = `lstTopChucNang` of
+  `getData` (`tenChucNang` / `duongDan` / `soThaoTac` / `tyLe`). Feature attribution only started
+  on 2026-10-07 server-side, so earlier periods are legitimately empty. `getData` writes a
+  history-log record per call — never poll it.
+- "Tiến độ dữ liệu": `useDataContribution.hook.ts` loads `getLoaiDuLieu` + `getNguoiDungTichCuc`
+  (`limit: 10`) independently of the rest of the screen (own loading/error/retry). The screen has
+  no date filter, so the period is fixed to 1 Jan of the current year → today and printed above
+  the two sections; everything else on that screen is all-time. "Chưa phân loại" is recognised by
+  a missing `maLoai`, not by its label.
+- **`X-Feature-Url` header**: the backend attributes logged actions to a feature through this
+  header. `src/api/featureUrl.ts` holds the current value, the axios request interceptor sends it,
+  and `AppNavigator` updates it on every route change from `FEATURE_URL_BY_ROUTE`
+  (`src/navigation/routes.ts`, web paths taken from pmbc_web's routing modules). **Any new drawer
+  screen must add its web path there.** Chatbot and meeting-room screens are unmapped (no web menu
+  path identified), and the chatbot stream's raw XHR does not send the header.
+- `HorizontalBarChart` accepts an optional per-item `share` and a `total` override for sources
+  that provide their own percentages/totals.
+
+"Dashboard người dùng" scrolls as a whole (`ScrollView`, `keyboardShouldPersistTaps="handled"` for
+the AppSelect dropdown) and its Top-5 `bottomRow` has a fixed `height: 420` — it can't `flex: 1`
 inside a ScrollView, and TopListCard's inner `flex: 1` list would collapse (§6.16).
 
 Notes for debugging if a verification fails:
