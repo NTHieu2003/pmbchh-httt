@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { ShieldAlert } from 'lucide-react-native';
+import { FileText, ShieldAlert } from 'lucide-react-native';
 
 import { AppModal, AppModalButton } from '@/components/AppModal';
 
@@ -15,6 +15,8 @@ export interface Map2DImpactModalProps {
   onClose: () => void;
   result: SimulationResult | null;
   domainBounds: DomainBounds | null;
+  isExportingDoc: boolean;
+  onExportDoc: () => void;
 }
 
 const GUIDANCE_LINES = (result: SimulationResult) => {
@@ -49,6 +51,8 @@ const Map2DImpactModal: React.FC<Map2DImpactModalProps> = ({
   onClose,
   result,
   domainBounds,
+  isExportingDoc,
+  onExportDoc,
 }) => {
   if (!visible || !result) return null;
 
@@ -61,7 +65,18 @@ const Map2DImpactModal: React.FC<Map2DImpactModalProps> = ({
       title="Thông tin vùng ảnh hưởng phát tán hóa chất độc"
       subtitle={result.chem.name}
       size="md"
-      footer={<AppModalButton label="Đóng" onPress={onClose} />}
+      footer={
+        <>
+          <AppModalButton label="Đóng" onPress={onClose} />
+          <AppModalButton
+            label="Xuất Word (.doc)"
+            variant="primary"
+            icon={FileText}
+            loading={isExportingDoc}
+            onPress={onExportDoc}
+          />
+        </>
+      }
     >
       <View style={styles.overviewGrid}>
         <View style={styles.overviewItem}>

@@ -3,6 +3,7 @@ export { CHEM_DB } from './chemData';
 export { AEGL_COLORS } from './aeglColors';
 export * from './responsePlan';
 export * from './responsePlanDoc';
+export * from './impactReportDoc';
 export * from './scenarios';
 export * from './mapUtils';
 export * from './runSimulation';

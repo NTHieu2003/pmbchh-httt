@@ -30,6 +30,9 @@ export interface SimulationResult {
   // Ambient temperature (K) the run used — needed by the realtime tab's
   // `buildRtModel` to re-derive the gas density for its own contour calc.
   ambientTemp: number;
+  // Scenario the run used — web reads its live `currentScenario` for the
+  // detailed report's "Kịch bản sự cố" row; mobile pins it to the result.
+  scenario: ScenarioKey;
 }
 
 // Matches pmbc_web's `ThreatLevel` (mophongphattan.component.ts:21-31).
