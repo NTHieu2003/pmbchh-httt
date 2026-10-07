@@ -79,7 +79,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         username,
         password,
       });
-      console.log(username, password);
       await Promise.all([
         saveSecret(TOKEN_SERVICE, access_token),
         saveSecret(REFRESH_SERVICE, refresh_token),

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { EyeOff, Menu } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { appAlert } from '@/components/AppDialog';
 import { AppPopover, type AppPopoverAnchor, type AppPopoverItem } from '@/components/AppPopover';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
 import { APP_COLORS } from '@/theme';
 
 import { chatbotHistoryScreenStyles as styles } from './ChatbotHistoryScreen.styles';
@@ -49,7 +51,7 @@ const ChatbotHistoryScreen: React.FC = () => {
   } = useChatbotHistory();
 
   const handleDelete = (item: ConversationSummary) => {
-    Alert.alert(
+    appAlert(
       'Xoá hội thoại',
       `Xoá hội thoại "${item.title || '(không tiêu đề)'}" khỏi lịch sử?`,
       [
@@ -71,7 +73,7 @@ const ChatbotHistoryScreen: React.FC = () => {
   const [hiddenPopoverAnchor, setHiddenPopoverAnchor] = useState<AppPopoverAnchor | null>(null);
   const openHiddenPopover = (event: { nativeEvent: { pageX: number; pageY: number } }) => {
     if (hiddenItems.length === 0) {
-      Alert.alert('Không có hội thoại bị ẩn', 'Chưa có hội thoại nào bị ẩn.');
+      appAlert('Không có hội thoại bị ẩn', 'Chưa có hội thoại nào bị ẩn.');
       return;
     }
     const { pageX, pageY } = event.nativeEvent;
@@ -109,6 +111,7 @@ const ChatbotHistoryScreen: React.FC = () => {
         >
           <EyeOff size={20} color={APP_COLORS.chatIconMuted} />
         </TouchableOpacity>
+        <HeaderUserMenu />
       </View>
 
       <AppPopover

@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { LocateFixed, Trash2, X, ZoomIn } from 'lucide-react-native';
 import RNFS from 'react-native-fs';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
+import { appAlert } from '@/components/AppDialog';
 import { APP_COLORS } from '@/theme';
 import {
   buildResponsePlanDocHtml,
@@ -84,7 +85,7 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
         saveExportedImage(data.dataUrl);
       } else if (data.type === 'mapImageError') {
         setIsExporting(false);
-        Alert.alert('Lỗi', 'Không thể xuất ảnh bản đồ.');
+        appAlert('Lỗi', 'Không thể xuất ảnh bản đồ.');
       }
     } catch {
       // Ignore malformed bridge messages.
@@ -146,9 +147,9 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
         '_'
       );
       await RNFS.writeFile(`${dir}/${fileName}`, base64, 'base64');
-      Alert.alert('Xuất ảnh thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
+      appAlert('Xuất ảnh thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
     } catch {
-      Alert.alert('Lỗi', 'Không thể lưu ảnh bản đồ.');
+      appAlert('Lỗi', 'Không thể lưu ảnh bản đồ.');
     } finally {
       setIsExporting(false);
     }
@@ -166,9 +167,9 @@ const Map2DView: React.FC<Map2DViewProps> = ({ result, resultVersion, onSetSourc
       const fileName = buildResponsePlanFileName(result);
       const dir = RNFS.DownloadDirectoryPath || RNFS.DocumentDirectoryPath;
       await RNFS.writeFile(`${dir}/${fileName}`, `﻿${docHtml}`, 'utf8');
-      Alert.alert('Xuất văn bản thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
+      appAlert('Xuất văn bản thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
     } catch {
-      Alert.alert('Lỗi', 'Không thể xuất văn bản phương án ứng phó.');
+      appAlert('Lỗi', 'Không thể xuất văn bản phương án ứng phó.');
     } finally {
       setIsExportingDoc(false);
     }

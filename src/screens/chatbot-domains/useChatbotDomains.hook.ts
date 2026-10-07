@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import RNFS from 'react-native-fs';
+
+import { appAlert } from '@/components/AppDialog';
+import type { PdfViewerFile } from '@/components/PdfViewerModal';
 
 import { PmbcQuanLyLinhVucChatbotApi } from '@/api/pmbcquanlylinhvucchatbot';
 
@@ -20,6 +22,10 @@ export interface UseChatbotDomainsResult {
   // 1 = Excel (.xls), 2 = PDF — matches the BE's typeExport contract
   // (pmbc_quanlylinhvucchatbotRsService.exportExcel).
   onExport: (type: 1 | 2) => void;
+  // Set after a PDF export is written — the screen opens it in the
+  // in-app viewer right away (Excel exports still just show an appAlert).
+  pdfPreview: PdfViewerFile | null;
+  closePdfPreview: () => void;
 }
 
 const EXPORT_FILE_BASE_NAME = 'LIST_LINHVUCCHATBOT_EXPORT';
@@ -36,6 +42,8 @@ export const useChatbotDomains = (): UseChatbotDomainsResult => {
   const [isError, setIsError] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PmbcQuanLyLinhVucChatbotItem | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [pdfPreview, setPdfPreview] = useState<PdfViewerFile | null>(null);
+  const closePdfPreview = useCallback(() => setPdfPreview(null), []);
 
   // `isPullToRefresh` keeps the list on screen (native pull-to-refresh
   // spinner) instead of swapping to the full-page loading state, which
@@ -83,13 +91,17 @@ export const useChatbotDomains = (): UseChatbotDomainsResult => {
           const dir = RNFS.DownloadDirectoryPath || RNFS.DocumentDirectoryPath;
           const path = `${dir}/${fileName}`;
           await RNFS.writeFile(path, res.blob, 'base64');
-          Alert.alert(
+          if (type === 2) {
+            setPdfPreview({ path, fileName });
+            return;
+          }
+          appAlert(
             'Xuất dữ liệu thành công',
             `Đã lưu file "${fileName}" vào thư mục Downloads.`
           );
         })
         .catch(() => {
-          Alert.alert('Lỗi', 'Không thể xuất dữ liệu. Vui lòng thử lại.');
+          appAlert('Lỗi', 'Không thể xuất dữ liệu. Vui lòng thử lại.');
         })
         .finally(() => setIsExporting(false));
     },
@@ -108,5 +120,7 @@ export const useChatbotDomains = (): UseChatbotDomainsResult => {
     closeDetail,
     isExporting,
     onExport,
+    pdfPreview,
+    closePdfPreview,
   };
 };

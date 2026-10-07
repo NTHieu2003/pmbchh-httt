@@ -1,6 +1,8 @@
 import React from 'react';
-import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
-import { X } from 'lucide-react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { ListOrdered } from 'lucide-react-native';
+
+import { AppModal, AppModalButton } from '@/components/AppModal';
 
 import { meetingRoomAgendaModalStyles as styles } from './MeetingRoomAgendaModal.styles';
 
@@ -35,37 +37,41 @@ const MeetingRoomAgendaModal: React.FC<MeetingRoomAgendaModalProps> = ({
   if (!visible) return null;
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <View style={styles.card} onStartShouldSetResponder={() => true}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Chương trình họp</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <X size={20} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
+    <AppModal
+      visible
+      onClose={onClose}
+      icon={ListOrdered}
+      title="Chương trình họp"
+      subtitle={`${items.length} nội dung`}
+      size="md"
+      // FlatList fills the card — AppModal's own ScrollView is turned off.
+      scrollable={false}
+      heightRatio={0.75}
+      footer={<AppModalButton label="Đóng" onPress={onClose} />}
+    >
+      <View style={styles.tableHeader}>
+        <Text style={[styles.tableHeaderText, styles.timeCol]}>Thời gian</Text>
+        <Text style={[styles.tableHeaderText, styles.contentCol]}>Nội dung</Text>
+      </View>
 
-          <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeaderText, styles.timeCol]}>Thời gian</Text>
-            <Text style={[styles.tableHeaderText, styles.contentCol]}>Nội dung</Text>
-          </View>
-
-          <FlatList
-            style={styles.body}
-            data={items}
-            keyExtractor={(item) => String(item.gid)}
-            renderItem={({ item, index }) => {
-              const isCurrent = index === currentIndex;
-              const isCovered = currentIndex != null && index < currentIndex;
-              return (
-                <TouchableOpacity
-                  style={[styles.row, isCurrent && styles.rowCurrent]}
-                  onPress={() => onSelect(index)}
-                  activeOpacity={0.6}
-                >
+      <FlatList
+        style={styles.list}
+        contentContainerStyle={styles.listContent}
+        data={items}
+        keyExtractor={(item) => String(item.gid)}
+        renderItem={({ item, index }) => {
+          const isCurrent = index === currentIndex;
+          const isCovered = currentIndex != null && index < currentIndex;
+          return (
+            <TouchableOpacity
+              style={[styles.row, isCurrent && styles.rowCurrent]}
+              onPress={() => onSelect(index)}
+              activeOpacity={0.6}
+            >
+              <View style={styles.timeCol}>
+                <View style={[styles.timePill, isCurrent && styles.timePillCurrent]}>
                   <Text
                     style={[
-                      styles.timeCol,
                       styles.timeText,
                       isCovered && styles.textCovered,
                       isCurrent && styles.textCurrent,
@@ -73,29 +79,25 @@ const MeetingRoomAgendaModal: React.FC<MeetingRoomAgendaModalProps> = ({
                   >
                     {formatTime(item.thoigiantu)} - {formatTime(item.thoigianden)}
                   </Text>
-                  <Text
-                    style={[
-                      styles.contentCol,
-                      styles.contentText,
-                      isCovered && styles.textCovered,
-                      isCurrent && styles.textCurrent,
-                      !isCovered && !isCurrent && styles.textUpcoming,
-                    ]}
-                  >
-                    {item.tentailieu}
-                  </Text>
-                </TouchableOpacity>
-              );
-            }}
-            ListEmptyComponent={<Text style={styles.emptyText}>Chưa có chương trình họp.</Text>}
-          />
-
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Đóng</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </Modal>
+                </View>
+              </View>
+              <Text
+                style={[
+                  styles.contentCol,
+                  styles.contentText,
+                  isCovered && styles.textCovered,
+                  isCurrent && styles.textCurrent,
+                  !isCovered && !isCurrent && styles.textUpcoming,
+                ]}
+              >
+                {item.tentailieu}
+              </Text>
+            </TouchableOpacity>
+          );
+        }}
+        ListEmptyComponent={<Text style={styles.emptyText}>Chưa có chương trình họp.</Text>}
+      />
+    </AppModal>
   );
 };
 

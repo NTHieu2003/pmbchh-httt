@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Paperclip, X } from 'lucide-react-native';
+import { Text, TextInput, TouchableOpacity } from 'react-native';
+import { Mic, Paperclip } from 'lucide-react-native';
 import { pick, types } from '@react-native-documents/picker';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import RNFS from 'react-native-fs';
 
 import { CommonApi } from '@/api/common';
+import { AppModal, AppModalButton } from '@/components/AppModal';
+import { appAlert } from '@/components/AppDialog';
 import { APP_COLORS } from '@/theme';
 import { AppSelect, type AppSelectOption } from '@/components/AppSelect';
 
@@ -82,16 +83,18 @@ const MeetingRoomCreateSpeechModal: React.FC<MeetingRoomCreateSpeechModalProps> 
 
   const onAccept = async () => {
     if (!selected) {
-      Alert.alert('Thiếu thông tin', 'Vui lòng chọn người phát biểu.');
+      appAlert('Thiếu thông tin', 'Vui lòng chọn người phát biểu.', undefined, { tone: 'warning' });
       return;
     }
     const thoigian = Number(minutes);
     if (!minutes || Number.isNaN(thoigian) || thoigian <= 0) {
-      Alert.alert('Thiếu thông tin', 'Vui lòng nhập thời gian phát biểu (phút).');
+      appAlert('Thiếu thông tin', 'Vui lòng nhập thời gian phát biểu (phút).', undefined, {
+        tone: 'warning',
+      });
       return;
     }
     if (!content.trim()) {
-      Alert.alert('Thiếu thông tin', 'Vui lòng nhập nội dung phát biểu.');
+      appAlert('Thiếu thông tin', 'Vui lòng nhập nội dung phát biểu.', undefined, { tone: 'warning' });
       return;
     }
 
@@ -112,96 +115,75 @@ const MeetingRoomCreateSpeechModal: React.FC<MeetingRoomCreateSpeechModalProps> 
       });
       resetAndClose();
     } catch {
-      Alert.alert('Lỗi', 'Không thể thêm mới nội dung phát biểu. Vui lòng thử lại.');
+      appAlert('Lỗi', 'Không thể thêm mới nội dung phát biểu. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={resetAndClose}>
-      <KeyboardAvoidingView style={styles.keyboardAvoider} behavior="padding">
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={resetAndClose}>
-          <View style={styles.card} onStartShouldSetResponder={() => true}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Thêm mới phát biểu cá nhân</Text>
-            <TouchableOpacity onPress={resetAndClose} hitSlop={8}>
-              <X size={20} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
+    <AppModal
+      visible
+      onClose={resetAndClose}
+      icon={Mic}
+      title="Thêm mới phát biểu cá nhân"
+      size="md"
+      avoidKeyboard
+      dismissOnBackdrop={false}
+      bodyStyle={styles.body}
+      footer={
+        <>
+          <AppModalButton label="Hủy" onPress={resetAndClose} disabled={isSubmitting} />
+          <AppModalButton label="Lưu" variant="primary" onPress={onAccept} loading={isSubmitting} />
+        </>
+      }
+    >
+      <Text style={styles.label}>Người phát biểu</Text>
+      <AppSelect
+        value={query}
+        onChangeText={(text) => {
+          setQuery(text);
+          setSelected(null);
+        }}
+        onSelect={(option) => {
+          const item = option.raw as ThanhPhanThamGiaItem;
+          setSelected(item);
+          setQuery(option.label);
+        }}
+        options={options}
+        filterLocally
+        placeholder="Tìm theo tên"
+        emptyText="Không tìm thấy người tham gia"
+      />
 
-          <ScrollView
-            style={styles.bodyScroll}
-            contentContainerStyle={styles.body}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Text style={styles.label}>Người phát biểu</Text>
-            <AppSelect
-              value={query}
-              onChangeText={(text) => {
-                setQuery(text);
-                setSelected(null);
-              }}
-              onSelect={(option) => {
-                const item = option.raw as ThanhPhanThamGiaItem;
-                setSelected(item);
-                setQuery(option.label);
-              }}
-              options={options}
-              filterLocally
-              placeholder="Tìm theo tên"
-              emptyText="Không tìm thấy người tham gia"
-            />
+      <Text style={styles.label}>Thời gian (phút)</Text>
+      <TextInput
+        style={styles.input}
+        value={minutes}
+        onChangeText={setMinutes}
+        keyboardType="numeric"
+        placeholder="VD: 10"
+        placeholderTextColor={APP_COLORS.chatIconMuted}
+      />
 
-            <Text style={styles.label}>Thời gian (phút)</Text>
-            <TextInput
-              style={styles.input}
-              value={minutes}
-              onChangeText={setMinutes}
-              keyboardType="numeric"
-              placeholder="VD: 10"
-              placeholderTextColor={APP_COLORS.chatIconMuted}
-            />
+      <Text style={styles.label}>Nội dung</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        value={content}
+        onChangeText={setContent}
+        placeholder="Nhập nội dung phát biểu"
+        placeholderTextColor={APP_COLORS.chatIconMuted}
+        multiline
+      />
 
-            <Text style={styles.label}>Nội dung</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={content}
-              onChangeText={setContent}
-              placeholder="Nhập nội dung phát biểu"
-              placeholderTextColor={APP_COLORS.chatIconMuted}
-              multiline
-            />
-
-            <Text style={styles.label}>Tài liệu đính kèm</Text>
-            <TouchableOpacity style={styles.filePickerButton} onPress={onPickFile}>
-              <Paperclip size={16} color={APP_COLORS.primary} />
-              <Text style={styles.filePickerText} numberOfLines={1}>
-                {pickedFileName || 'Chọn tệp từ thiết bị'}
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
-
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={resetAndClose} disabled={isSubmitting}>
-              <Text style={styles.cancelButtonText}>Hủy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={onAccept}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <ActivityIndicator size="small" color={APP_COLORS.white} />
-              ) : (
-                <Text style={styles.submitButtonText}>Lưu</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-          </View>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </Modal>
+      <Text style={styles.label}>Tài liệu đính kèm</Text>
+      <TouchableOpacity style={styles.filePickerButton} onPress={onPickFile}>
+        <Paperclip size={16} color={APP_COLORS.primary} />
+        <Text style={styles.filePickerText} numberOfLines={1}>
+          {pickedFileName || 'Chọn tệp từ thiết bị'}
+        </Text>
+      </TouchableOpacity>
+    </AppModal>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useRef, useState, type ComponentRef } from 'react';
-import { Alert, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 
+import { appAlert } from '@/components/AppDialog';
 import { useAuthStore } from '@/stores';
 
 export const useLoginScreen = () => {
@@ -19,7 +20,7 @@ export const useLoginScreen = () => {
   const handleLogin = async () => {
     
     if (!username || !password) {
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ tài khoản và mật khẩu');
+      appAlert('Lỗi', 'Vui lòng nhập đầy đủ tài khoản và mật khẩu');
       return;
     }
 
@@ -30,7 +31,7 @@ export const useLoginScreen = () => {
       // password — a connection/SSL/timeout error has no `error.response`
       // and was previously indistinguishable from a real 401 here.
       if (!error?.response) {
-        Alert.alert(
+        appAlert(
           'Không thể kết nối',
           `Không kết nối được tới máy chủ.\n${error?.message ?? ''}`
         );
@@ -39,11 +40,13 @@ export const useLoginScreen = () => {
 
       const status = error.response.status;
       if (status === 400 || status === 401) {
-        Alert.alert('Thông báo', 'Tài khoản hoặc mật khẩu không chính xác.');
+        appAlert('Thông báo', 'Tài khoản hoặc mật khẩu không chính xác.', undefined, {
+          tone: 'error',
+        });
         return;
       }
 
-      Alert.alert(
+      appAlert(
         'Lỗi',
         `Máy chủ trả về lỗi (${status}).\n${error.response.data?.message ?? ''}`
       );

@@ -6,8 +6,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { APP_COLORS } from '@/theme';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
 
+import ActiveContributorsList from './ActiveContributorsList';
 import { dashboardDataProgressScreenStyles as styles } from './DashboardDataProgressScreen.styles';
+import DataTypeChart from './DataTypeChart';
 import KpiCard from './KpiCard';
 import { formatNumber } from './statsCompute';
 import StatsTable from './StatsTable';
@@ -50,6 +53,9 @@ const DashboardDataProgressScreen: React.FC = () => {
     selectedUnit,
     openUnitDetail,
     closeUnitDetail,
+    dataTypeStats,
+    activeContributors,
+    isSampleData,
   } = useDashboardDataProgress();
 
   return (
@@ -67,6 +73,7 @@ const DashboardDataProgressScreen: React.FC = () => {
           <RefreshCw size={16} color={APP_COLORS.textPrimary} />
           <Text style={styles.refreshButtonText}>Làm mới</Text>
         </TouchableOpacity>
+        <HeaderUserMenu />
       </View>
 
       {isLoading ? (
@@ -144,6 +151,11 @@ const DashboardDataProgressScreen: React.FC = () => {
             goNextPage={goNextPage}
             openUnitDetail={openUnitDetail}
           />
+
+          <View style={styles.bottomRow}>
+            <DataTypeChart stats={dataTypeStats} isSample={isSampleData} />
+            <ActiveContributorsList contributors={activeContributors} isSample={isSampleData} />
+          </View>
         </KeyboardAwareScrollView>
       )}
 

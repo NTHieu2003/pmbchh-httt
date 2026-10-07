@@ -5,6 +5,7 @@ import { FileText, HelpCircle, Menu, Play, Search, X } from 'lucide-react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { APP_COLORS } from '@/theme';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
 
 import { chatbotGuideScreenStyles as styles } from './ChatbotGuideScreen.styles';
 import GuideFaqItem from './GuideFaqItem';
@@ -43,6 +44,7 @@ const ChatbotGuideScreen: React.FC = () => {
           <Menu size={22} color={APP_COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Hướng dẫn Chatbot</Text>
+        <HeaderUserMenu />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>

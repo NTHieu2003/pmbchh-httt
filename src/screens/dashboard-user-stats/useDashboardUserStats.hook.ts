@@ -5,6 +5,10 @@ import { ApiDashboardUserApi } from '@/api/apidashboarduser';
 import type { AppSelectOption } from '@/components/AppSelect';
 import type { ApiDashboardUserItem } from '@/types';
 
+import { STATIC_FEATURE_USAGE } from './featureUsageStatic';
+
+import type { FeatureUsageStat } from './featureUsageStatic';
+
 export interface DashboardKpi {
   totalUsers: number;
   totalUsersGrowth: number | null;
@@ -53,6 +57,12 @@ export interface UseDashboardUserStatsResult {
   onClearDonVi: () => void;
   doSearch: () => void;
   doRefresh: () => void;
+
+  // "Loại chức năng hay được sử dụng" chart — static until the backend
+  // API exists (see featureUsageStatic.ts); `isFeatureUsageSample` drives
+  // the "Dữ liệu mẫu" chip.
+  featureUsage: FeatureUsageStat[];
+  isFeatureUsageSample: boolean;
 }
 
 // Mirrors pmbc_web's DashboardUserComponent — filter bar (Từ ngày/Đến ngày/
@@ -182,5 +192,7 @@ export const useDashboardUserStats = (): UseDashboardUserStatsResult => {
     onClearDonVi,
     doSearch,
     doRefresh,
+    featureUsage: STATIC_FEATURE_USAGE,
+    isFeatureUsageSample: true,
   };
 };

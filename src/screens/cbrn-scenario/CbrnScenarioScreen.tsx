@@ -14,6 +14,8 @@ import { Download, FileSpreadsheet, FileText, Menu, Search } from 'lucide-react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppPopover, type AppPopoverAnchor, type AppPopoverItem } from '@/components/AppPopover';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
+import { PdfViewerModal } from '@/components/PdfViewerModal';
 import { APP_COLORS } from '@/theme';
 
 import { cbrnScenarioScreenStyles as styles } from './CbrnScenarioScreen.styles';
@@ -63,6 +65,8 @@ const CbrnScenarioScreen: React.FC = () => {
     closeDetail,
     isExporting,
     onExport,
+    pdfPreview,
+    closePdfPreview,
   } = useCbrnScenario();
 
   // "Xuất dữ liệu" dropdown — matches web's matMenuTriggerFor menu ("In
@@ -111,6 +115,7 @@ const CbrnScenarioScreen: React.FC = () => {
             {isExporting ? 'Đang xuất...' : 'Xuất dữ liệu'}
           </Text>
         </TouchableOpacity>
+        <HeaderUserMenu />
       </View>
 
       <View style={styles.searchBar}>
@@ -202,6 +207,7 @@ const CbrnScenarioScreen: React.FC = () => {
         items={exportPopoverItems}
         onClose={() => setExportPopoverAnchor(null)}
       />
+      <PdfViewerModal file={pdfPreview} onClose={closePdfPreview} />
     </SafeAreaView>
   );
 };

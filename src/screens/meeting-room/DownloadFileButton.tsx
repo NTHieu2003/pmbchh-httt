@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Text, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { Download } from 'lucide-react-native';
 import RNFS from 'react-native-fs';
 
 import { CommonApi } from '@/api/common';
+import { appAlert } from '@/components/AppDialog';
 import { APP_COLORS } from '@/theme';
 
 import { downloadFileButtonStyles as styles } from './DownloadFileButton.styles';
@@ -27,10 +28,10 @@ const DownloadFileButton: React.FC<DownloadFileButtonProps> = ({ fileName }) => 
         const dir = RNFS.DownloadDirectoryPath || RNFS.DocumentDirectoryPath;
         const path = `${dir}/${fileName}`;
         await RNFS.writeFile(path, base64, 'base64');
-        Alert.alert('Tải xuống thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
+        appAlert('Tải xuống thành công', `Đã lưu "${fileName}" vào thư mục Downloads.`);
       })
       .catch(() => {
-        Alert.alert('Lỗi', `Không thể tải tệp "${fileName}".`);
+        appAlert('Lỗi', `Không thể tải tệp "${fileName}".`);
       })
       .finally(() => setIsDownloading(false));
   };

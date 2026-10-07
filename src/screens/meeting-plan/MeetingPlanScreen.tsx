@@ -16,6 +16,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { APP_COLORS } from '@/theme';
 import { APP_ROUTES } from '@/navigation/routes';
 import { AppPopover, type AppPopoverAnchor, type AppPopoverItem } from '@/components/AppPopover';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
 
 import type { MainStackParamList } from '@/navigation/navigator/MainStackNavigator';
 import type { KhtochuchopItem } from '@/types';
@@ -81,6 +82,7 @@ const MeetingPlanScreen: React.FC = () => {
           <Menu size={22} color={APP_COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Kế hoạch tổ chức họp</Text>
+        <HeaderUserMenu />
       </View>
 
       {isLoading ? (

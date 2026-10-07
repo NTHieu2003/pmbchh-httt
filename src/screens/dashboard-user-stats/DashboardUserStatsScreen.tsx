@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
 import {
   Menu,
@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppDatePicker } from '@/components/AppDatePicker';
 import { AppSelect } from '@/components/AppSelect';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
+import { HorizontalBarChart } from '@/components/HorizontalBarChart';
 import { APP_COLORS } from '@/theme';
 
 import { dashboardUserStatsScreenStyles as styles } from './DashboardUserStatsScreen.styles';
@@ -22,7 +24,11 @@ import KpiCard from './KpiCard';
 import TopListCard from './TopListCard';
 import { useDashboardUserStats } from './useDashboardUserStats.hook';
 
+import type { FeatureUsageStat } from './featureUsageStatic';
 import type { TopListColumn } from './TopListCard';
+
+const featureUsageItems = (stats: FeatureUsageStat[]) =>
+  stats.map((s) => ({ key: s.code, label: s.label, value: s.count }));
 
 const DON_VI_COLUMNS: TopListColumn[] = [
   { key: 'rank', label: '#', flex: 0.6, render: (item) => String(item.sttExport ?? '') },
@@ -65,6 +71,8 @@ const DashboardUserStatsScreen: React.FC = () => {
     onClearDonVi,
     doSearch,
     doRefresh,
+    featureUsage,
+    isFeatureUsageSample,
   } = useDashboardUserStats();
 
   return (
@@ -78,6 +86,7 @@ const DashboardUserStatsScreen: React.FC = () => {
           <Menu size={22} color={APP_COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Dashboard người dùng</Text>
+        <HeaderUserMenu />
       </View>
 
       {isLoading ? (
@@ -85,10 +94,14 @@ const DashboardUserStatsScreen: React.FC = () => {
           <ActivityIndicator color={APP_COLORS.chatBrandRed} />
         </View>
       ) : (
-        // No outer ScrollView — the filter bar and KPI row sit at their
-        // natural height, and `bottomRow` (flex: 1) fills the rest of the
-        // screen down to the bottom, with each table scrolling internally.
-        <View style={styles.body}>
+        // Scrolls as a whole: filter bar, KPI row, the two Top-5 tables
+        // (fixed-height `bottomRow`, each scrolling internally) and the
+        // feature-usage chart below them. `handled` keeps taps on the đơn
+        // vị AppSelect dropdown working inside the ScrollView.
+        <ScrollView
+          contentContainerStyle={styles.body}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.filterBar}>
             <View style={styles.filterField}>
               <AppDatePicker label="Từ ngày" value={fromDate} onChange={setFromDate} maximumDate={toDate} />
@@ -170,7 +183,15 @@ const DashboardUserStatsScreen: React.FC = () => {
               displayList={displayTopNguoiDung}
             />
           </View>
-        </View>
+
+          <HorizontalBarChart
+            title="Loại chức năng hay được sử dụng"
+            items={featureUsageItems(featureUsage)}
+            unit="lượt sử dụng"
+            isSample={isFeatureUsageSample}
+            labelWidth={220}
+          />
+        </ScrollView>
       )}
     </SafeAreaView>
   );

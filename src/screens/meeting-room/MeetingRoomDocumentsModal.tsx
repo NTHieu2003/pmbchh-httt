@@ -1,6 +1,8 @@
 import React from 'react';
-import { FlatList, Modal, Text, TouchableOpacity, View } from 'react-native';
-import { X } from 'lucide-react-native';
+import { FlatList, Text, View } from 'react-native';
+import { FileText } from 'lucide-react-native';
+
+import { AppModal, AppModalButton } from '@/components/AppModal';
 
 import { meetingRoomDocumentsModalStyles as styles } from './MeetingRoomDocumentsModal.styles';
 import DownloadFileButton from './DownloadFileButton';
@@ -27,7 +29,9 @@ const formatDate = (raw?: string): string => {
 // use the same shape there).
 const renderItem = ({ item, index }: { item: TaiLieuChuongTrinhHopItem; index: number }) => (
   <View style={styles.row}>
-    <Text style={styles.index}>{index + 1}.</Text>
+    <View style={styles.indexBadge}>
+      <Text style={styles.indexText}>{index + 1}</Text>
+    </View>
     <View style={styles.rowBody}>
       <Text style={styles.name}>{item.tentailieu}</Text>
       {!!item.noidung && <Text style={styles.content}>{item.noidung}</Text>}
@@ -51,43 +55,52 @@ const MeetingRoomDocumentsModal: React.FC<MeetingRoomDocumentsModalProps> = ({
   if (!visible) return null;
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <View style={styles.card} onStartShouldSetResponder={() => true}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Tài liệu cuộc họp</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <X size={20} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.body}>
-            <View style={styles.column}>
-              <Text style={styles.columnTitle}>Tài liệu cá nhân</Text>
-              <FlatList
-                data={personalDocuments}
-                keyExtractor={(item) => String(item.gid)}
-                renderItem={renderItem}
-                ListEmptyComponent={<Text style={styles.emptyText}>Không có tài liệu.</Text>}
-              />
-            </View>
-            <View style={styles.column}>
-              <Text style={styles.columnTitle}>Tài liệu chung</Text>
-              <FlatList
-                data={sharedDocuments}
-                keyExtractor={(item) => String(item.gid)}
-                renderItem={renderItem}
-                ListEmptyComponent={<Text style={styles.emptyText}>Không có tài liệu.</Text>}
-              />
+    <AppModal
+      visible
+      onClose={onClose}
+      icon={FileText}
+      title="Tài liệu cuộc họp"
+      subtitle="Tài liệu cá nhân và tài liệu chung"
+      size="lg"
+      // Two side-by-side FlatLists fill the card — AppModal's own
+      // ScrollView is turned off.
+      scrollable={false}
+      heightRatio={0.75}
+      footer={<AppModalButton label="Đóng" onPress={onClose} />}
+    >
+      <View style={styles.body}>
+        <View style={styles.column}>
+          <View style={styles.columnHeader}>
+            <Text style={styles.columnTitle}>Tài liệu cá nhân</Text>
+            <View style={styles.countPill}>
+              <Text style={styles.countText}>{personalDocuments.length}</Text>
             </View>
           </View>
-
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Đóng</Text>
-          </TouchableOpacity>
+          <FlatList
+            style={styles.list}
+            data={personalDocuments}
+            keyExtractor={(item) => String(item.gid)}
+            renderItem={renderItem}
+            ListEmptyComponent={<Text style={styles.emptyText}>Không có tài liệu.</Text>}
+          />
         </View>
-      </TouchableOpacity>
-    </Modal>
+        <View style={styles.column}>
+          <View style={styles.columnHeader}>
+            <Text style={styles.columnTitle}>Tài liệu chung</Text>
+            <View style={styles.countPill}>
+              <Text style={styles.countText}>{sharedDocuments.length}</Text>
+            </View>
+          </View>
+          <FlatList
+            style={styles.list}
+            data={sharedDocuments}
+            keyExtractor={(item) => String(item.gid)}
+            renderItem={renderItem}
+            ListEmptyComponent={<Text style={styles.emptyText}>Không có tài liệu.</Text>}
+          />
+        </View>
+      </View>
+    </AppModal>
   );
 };
 

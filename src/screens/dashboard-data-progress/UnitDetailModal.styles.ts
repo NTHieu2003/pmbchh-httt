@@ -3,72 +3,50 @@ import { StyleSheet } from 'react-native';
 import { APP_COLORS } from '@/theme';
 import { APP_SPACING, FontSize, Radius } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header, footer)
+// comes from AppModal.
 export const unitDetailModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
-  },
-  card: {
-    width: '90%',
-    maxWidth: 900,
-    height: '82%',
-    maxHeight: 640,
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: APP_COLORS.navy,
-  },
-  headerTextWrap: {
-    flex: 1,
-    marginRight: APP_SPACING.sm,
-  },
-  title: {
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
-  subtitle: {
-    fontSize: FontSize.xs,
-    color: APP_COLORS.overlayText,
-    marginTop: 2,
-  },
   statsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: APP_SPACING.xs,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.chatBorder,
+    gap: APP_SPACING.sm,
   },
-  statChip: {
+  statCard: {
+    flexGrow: 1,
+    flexBasis: 120,
+    padding: APP_SPACING.sm,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+  },
+  statCardSuccess: {
+    backgroundColor: '#f0fdf4',
+    borderColor: '#dcfce7',
+  },
+  statLabel: {
     fontSize: FontSize.xs,
+    fontWeight: '600',
     color: APP_COLORS.chatSubtitle,
-    backgroundColor: APP_COLORS.chatSidebarBg,
-    borderRadius: Radius.sm,
-    paddingHorizontal: APP_SPACING.xs,
-    paddingVertical: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 4,
   },
-  statChipBold: {
+  statValue: {
+    fontSize: FontSize.lg,
     fontWeight: '700',
     color: APP_COLORS.textPrimary,
   },
-  statChipSuccess: {
-    backgroundColor: '#dcfce7',
+  statValueSuccess: {
+    color: '#16a34a',
   },
-  body: {
-    flex: 1,
-    paddingHorizontal: APP_SPACING.md,
+  listCard: {
+    marginTop: APP_SPACING.sm,
+    paddingHorizontal: APP_SPACING.sm,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
   },
   emptyText: {
     fontSize: FontSize.sm,
@@ -83,20 +61,30 @@ export const unitDetailModalStyles = StyleSheet.create({
     gap: APP_SPACING.sm,
     paddingVertical: APP_SPACING.sm,
     borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.chatBorder,
+    borderBottomColor: '#eef0f3',
+  },
+  docRowLast: {
+    borderBottomWidth: 0,
   },
   docIndex: {
-    width: 24,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#eef0f3',
+  },
+  docIndexText: {
     fontSize: FontSize.xs,
+    fontWeight: '600',
     color: APP_COLORS.chatSubtitle,
-    textAlign: 'center',
   },
   docInfo: {
     flex: 1,
   },
   docTitle: {
     fontSize: FontSize.sm,
-    fontWeight: '700',
+    fontWeight: '600',
     color: APP_COLORS.textPrimary,
   },
   docMeta: {
@@ -105,8 +93,8 @@ export const unitDetailModalStyles = StyleSheet.create({
     marginTop: 2,
   },
   statusPill: {
-    paddingHorizontal: APP_SPACING.xs,
-    paddingVertical: 4,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: 3,
     borderRadius: Radius.xl,
     backgroundColor: '#f1f5f9',
   },
@@ -114,22 +102,11 @@ export const unitDetailModalStyles = StyleSheet.create({
     backgroundColor: '#dcfce7',
   },
   statusPillText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    color: APP_COLORS.chatSubtitle,
   },
-  closeButton: {
-    margin: APP_SPACING.md,
-    alignSelf: 'flex-end',
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.xs,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
-  },
-  closeButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
+  statusPillTextValid: {
+    color: '#16a34a',
   },
 });

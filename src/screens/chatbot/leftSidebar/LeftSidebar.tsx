@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   ScrollView,
   Text,
@@ -23,6 +22,7 @@ import {
 } from 'lucide-react-native';
 import type { GestureResponderEvent } from 'react-native';
 
+import { appAlert } from '@/components/AppDialog';
 import {
   AppPopover,
   type AppPopoverAnchor,
@@ -105,7 +105,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
   };
 
   const handleDelete = (item: ConversationSummary) => {
-    Alert.alert(
+    appAlert(
       'Xoá hội thoại',
       `Xoá hội thoại "${item.title || '(không tiêu đề)'}" khỏi lịch sử?`,
       [

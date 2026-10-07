@@ -1,0 +1,34 @@
+# Thư mục thư viện nặng nhất (Bắt buộc ignore)
+node_modules/
+
+# iOS Native Builds & Pods
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace/
+
+# Android Native Builds
+android/app/build/
+android/.gradle/
+android/app/.cxx/
+android/.idea/
+
+# Web / Expo Build Outputs
+build/
+dist/
+.expo/
+.next/
+
+# System / Git / Cache
+.git/
+.svn/
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Tránh đọc các file lock lớn nếu muốn tiết kiệm token tối đa (tùy chọn)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+Podfile.lock

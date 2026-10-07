@@ -3,90 +3,87 @@ import { StyleSheet } from 'react-native';
 import { APP_COLORS } from '@/theme';
 import { APP_SPACING, FontSize, Radius } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header, footer)
+// comes from AppModal.
 export const meetingRoomSpeechModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
-  },
-  card: {
-    width: '85%',
-    maxWidth: 760,
-    height: '75%',
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: APP_SPACING.sm,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: APP_COLORS.navy,
-  },
-  title: {
-    flex: 1,
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
   body: {
     flex: 1,
     flexDirection: 'row',
     gap: APP_SPACING.md,
-    paddingHorizontal: APP_SPACING.md,
-    paddingTop: APP_SPACING.sm,
+    padding: APP_SPACING.lg,
   },
   column: {
     flex: 1,
-  },
-  columnTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: APP_COLORS.textPrimary,
-    marginBottom: APP_SPACING.xs,
-    paddingBottom: APP_SPACING.xxs,
-    borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.chatBorder,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+    overflow: 'hidden',
   },
   columnHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: APP_SPACING.xs,
+    minHeight: 44,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eef0f3',
   },
-  // Only applied together with `columnTitle` inside `columnHeader` — makes
-  // the title eat the row's leftover *horizontal* space so the "+" button
-  // sits at the far right. Must stay off the base style: `columnTitle`
-  // alone is also used as a direct (column-axis) child of `column` for the
-  // published list, where `flex: 1` would instead grow it vertically and
-  // shove the FlatList (and its one row) down to the bottom of the card.
-  columnTitleInHeader: {
+  // `flex: 1` is safe here: the title always sits in the row-direction
+  // `columnHeader`, so it only eats leftover horizontal space and pushes
+  // the "Thêm" button to the far right.
+  columnTitle: {
     flex: 1,
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    color: APP_COLORS.chatSubtitle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   addButton: {
-    marginBottom: APP_SPACING.xs,
-    padding: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: Radius.xl,
+    backgroundColor: '#e8eefc',
+  },
+  addButtonText: {
+    fontSize: FontSize.xs,
+    fontWeight: '700',
+    color: APP_COLORS.primary,
+  },
+  list: {
+    flex: 1,
   },
   row: {
     flexDirection: 'row',
-    gap: APP_SPACING.xs,
-    paddingVertical: APP_SPACING.xs,
+    gap: APP_SPACING.sm,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.sm,
     borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.background,
+    borderBottomColor: '#eef0f3',
   },
-  index: {
-    fontSize: FontSize.sm,
+  indexBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: APP_COLORS.surface,
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+  },
+  indexText: {
+    fontSize: FontSize.xs,
     fontWeight: '700',
-    color: APP_COLORS.textPrimary,
+    color: APP_COLORS.chatSubtitle,
   },
   rowBody: {
     flex: 1,
-    gap: 2,
+    gap: 4,
   },
   speaker: {
     fontSize: FontSize.sm,
@@ -95,11 +92,29 @@ export const meetingRoomSpeechModalStyles = StyleSheet.create({
   },
   metaRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: APP_SPACING.sm,
   },
   meta: {
     fontSize: FontSize.xs,
     color: APP_COLORS.chatSubtitle,
+  },
+  statusPill: {
+    paddingHorizontal: APP_SPACING.xs,
+    paddingVertical: 2,
+    borderRadius: Radius.xl,
+    backgroundColor: '#f1f5f9',
+  },
+  statusPillPublished: {
+    backgroundColor: '#dcfce7',
+  },
+  statusText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    color: APP_COLORS.chatSubtitle,
+  },
+  statusTextPublished: {
+    color: '#16a34a',
   },
   content: {
     fontSize: FontSize.xs,
@@ -107,6 +122,7 @@ export const meetingRoomSpeechModalStyles = StyleSheet.create({
     fontStyle: 'italic',
   },
   emptyText: {
+    padding: APP_SPACING.sm,
     fontSize: FontSize.xs,
     color: APP_COLORS.chatIconMuted,
     fontStyle: 'italic',
@@ -128,19 +144,5 @@ export const meetingRoomSpeechModalStyles = StyleSheet.create({
   },
   actionLinkTextDanger: {
     color: APP_COLORS.chatBrandRed,
-  },
-  closeButton: {
-    margin: APP_SPACING.md,
-    alignSelf: 'flex-end',
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.xs,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
-  },
-  closeButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
   },
 });

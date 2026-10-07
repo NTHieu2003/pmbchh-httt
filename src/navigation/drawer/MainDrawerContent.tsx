@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import {
@@ -16,7 +16,7 @@ import {
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuthStore } from '@/stores';
+import { useConfirmLogout } from '@/components/HeaderUserMenu';
 import { APP_COLORS } from '@/theme';
 
 import { APP_ROUTES } from '../routes';
@@ -81,7 +81,7 @@ export const MainDrawerContent: React.FC<DrawerContentComponentProps> = ({
 }) => {
   const { top } = useSafeAreaInsets();
   const logoSource = require('@/assets/images/logo-bchh-chat.png');
-  const logout = useAuthStore((state) => state.logout);
+  const handleLogout = useConfirmLogout();
 
   // The drawer's own state only ever has one route (MAIN_STACK) — drill
   // into the nested stack's currently-focused screen name to know which
@@ -94,16 +94,6 @@ export const MainDrawerContent: React.FC<DrawerContentComponentProps> = ({
   const navigateTo = (route: string) => {
     navigation.closeDrawer();
     navigation.navigate(APP_ROUTES.MAIN_STACK, { screen: route });
-  };
-
-  // "Tạm thời" per request — no dedicated confirm-dialog design yet, so a
-  // plain native Alert.alert confirm is used to avoid an accidental tap
-  // signing the user out.
-  const handleLogout = () => {
-    Alert.alert('Đăng xuất', 'Bạn có chắc chắn muốn đăng xuất?', [
-      { text: 'Huỷ', style: 'cancel' },
-      { text: 'Đăng xuất', style: 'destructive', onPress: () => logout() },
-    ]);
   };
 
   return (

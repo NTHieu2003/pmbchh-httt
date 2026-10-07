@@ -83,4 +83,12 @@ export const dashboardDataProgressScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: APP_SPACING.sm,
   },
+  // Chart + active-users list side by side; wraps to stacked on narrow
+  // widths (each card sets its own flexBasis/minWidth).
+  bottomRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    gap: APP_SPACING.md,
+  },
 });

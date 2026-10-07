@@ -5,6 +5,7 @@ import { Menu } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { APP_COLORS } from '@/theme';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
 
 import { placeholderScreenStyles as styles } from './PlaceholderScreen.styles';
 
@@ -37,6 +38,7 @@ const PlaceholderScreen: React.FC<PlaceholderScreenProps> = ({
           <Menu size={22} color={APP_COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
+        <HeaderUserMenu />
       </View>
 
       <View style={styles.content}>

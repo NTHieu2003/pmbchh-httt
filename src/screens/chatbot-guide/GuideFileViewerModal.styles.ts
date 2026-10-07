@@ -1,51 +1,24 @@
 import { StyleSheet } from 'react-native';
 
 import { APP_COLORS } from '@/theme';
-import { APP_SPACING, FontSize, Radius } from '@/utils';
+import { APP_SPACING, FontSize } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header) comes from
+// AppModal (size xl, 90% window height).
 export const guideFileViewerModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
+  // PDF pages and loading/error states sit on a light gray canvas.
+  canvas: {
+    backgroundColor: '#f1f3f6',
   },
-  // Floating dialog card, not full-screen — matches web's centered
-  // MatDialog sizing (fixed w/h, not the whole viewport).
-  card: {
-    width: '90%',
-    maxWidth: 900,
-    height: '82%',
-    maxHeight: 620,
+  // Video keeps a black canvas behind the player.
+  canvasVideo: {
     backgroundColor: '#000000',
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: '#111111',
-  },
-  title: {
+  pdf: {
     flex: 1,
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-    marginRight: APP_SPACING.sm,
+    backgroundColor: '#f1f3f6',
   },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  webview: {
+  video: {
     flex: 1,
     backgroundColor: '#000000',
   },
@@ -54,15 +27,11 @@ export const guideFileViewerModalStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: APP_SPACING.sm,
-  },
-  loadingText: {
-    fontSize: FontSize.sm,
-    color: APP_COLORS.white,
-  },
-  errorText: {
-    fontSize: FontSize.sm,
-    color: APP_COLORS.white,
-    textAlign: 'center',
     paddingHorizontal: APP_SPACING.xl,
+  },
+  stateText: {
+    fontSize: FontSize.sm,
+    color: APP_COLORS.chatSubtitle,
+    textAlign: 'center',
   },
 });

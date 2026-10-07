@@ -29,10 +29,8 @@ export const dashboardUserStatsScreenStyles = StyleSheet.create({
     fontWeight: '700',
     color: APP_COLORS.textPrimary,
   },
-  // Replaces the old scrollable content container — `bottomRow` (flex: 1)
-  // now fills the screen, so this just needs to be a column flex container.
+  // ScrollView content container.
   body: {
-    flex: 1,
     padding: APP_SPACING.md,
     gap: APP_SPACING.md,
   },
@@ -108,11 +106,11 @@ export const dashboardUserStatsScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     gap: APP_SPACING.sm,
   },
-  // Fills whatever vertical space is left after the header/filter bar/KPI
-  // row — each TopListCard stretches to this row's full height and
-  // scrolls its own rows internally.
+  // Fixed (definite) height — it lives inside a ScrollView now, so it can't
+  // `flex: 1` to fill the screen, and TopListCard's inner `flex: 1` list
+  // would collapse without a definite parent height (HANDOFF §6.16).
   bottomRow: {
-    flex: 1,
+    height: 420,
     flexDirection: 'row',
     gap: APP_SPACING.sm,
   },

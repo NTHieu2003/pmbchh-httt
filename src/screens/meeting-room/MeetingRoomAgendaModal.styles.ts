@@ -3,75 +3,73 @@ import { StyleSheet } from 'react-native';
 import { APP_COLORS } from '@/theme';
 import { APP_SPACING, FontSize, Radius } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header, footer)
+// comes from AppModal.
 export const meetingRoomAgendaModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
-  },
-  card: {
-    width: '60%',
-    maxWidth: 640,
-    height: '70%',
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: APP_SPACING.sm,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: APP_COLORS.navy,
-  },
-  title: {
-    flex: 1,
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
   tableHeader: {
     flexDirection: 'row',
-    paddingHorizontal: APP_SPACING.md,
+    alignItems: 'center',
+    marginHorizontal: APP_SPACING.lg,
+    marginTop: APP_SPACING.md,
+    paddingHorizontal: APP_SPACING.sm,
     paddingVertical: APP_SPACING.xs,
-    backgroundColor: APP_COLORS.background,
-    borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.chatBorder,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
   },
   tableHeaderText: {
     fontSize: FontSize.xs,
-    fontWeight: '700',
+    fontWeight: '600',
     color: APP_COLORS.chatSubtitle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   timeCol: {
-    width: 110,
+    width: 130,
   },
   contentCol: {
     flex: 1,
   },
-  body: {
+  list: {
     flex: 1,
-    paddingHorizontal: APP_SPACING.md,
+  },
+  listContent: {
+    paddingHorizontal: APP_SPACING.lg,
+    paddingTop: APP_SPACING.xs,
+    paddingBottom: APP_SPACING.md,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: APP_SPACING.xs,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: APP_SPACING.sm,
     borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.background,
+    borderBottomColor: '#eef0f3',
   },
   rowCurrent: {
     backgroundColor: APP_COLORS.chatSidebarSoftBg,
+    borderRadius: Radius.md,
+    borderBottomColor: 'transparent',
+  },
+  timePill: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: APP_SPACING.xs,
+    paddingVertical: 2,
+    borderRadius: Radius.xl,
+    backgroundColor: '#f1f5f9',
+  },
+  timePillCurrent: {
+    backgroundColor: '#fee2e2',
   },
   timeText: {
     fontSize: FontSize.xs,
+    color: APP_COLORS.chatSubtitle,
   },
   contentText: {
     fontSize: FontSize.sm,
+    color: APP_COLORS.textPrimary,
+    lineHeight: FontSize.sm * 1.4,
   },
   textCovered: {
     fontWeight: '700',
@@ -91,19 +89,5 @@ export const meetingRoomAgendaModalStyles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     marginTop: APP_SPACING.lg,
-  },
-  closeButton: {
-    margin: APP_SPACING.md,
-    alignSelf: 'flex-end',
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.xs,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
-  },
-  closeButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
   },
 });

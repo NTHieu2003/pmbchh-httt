@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { Play, Square, Trash2 } from 'lucide-react-native';
 import Markdown from 'react-native-markdown-display';
 
+import { appAlert } from '@/components/AppDialog';
 import { chatMarkdownStyles } from '@/screens/chatbot/chat/markdownStyles';
 import { APP_COLORS } from '@/theme';
 
@@ -55,7 +56,7 @@ const MeetingRoomSttPanel: React.FC<MeetingRoomSttPanelProps> = ({
   const data = activeTab === 'full' ? persistedMessages : summarizedMessages;
 
   const confirmDelete = (item: MessageVoidChatItem) => {
-    Alert.alert('Xóa tiến trình', 'Bạn có chắc chắn muốn xóa nội dung phát biểu này?', [
+    appAlert('Xóa tiến trình', 'Bạn có chắc chắn muốn xóa nội dung phát biểu này?', [
       { text: 'Hủy', style: 'cancel' },
       { text: 'Xóa', style: 'destructive', onPress: () => onDeleteMessage(item) },
     ]);

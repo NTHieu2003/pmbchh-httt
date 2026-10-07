@@ -1,16 +1,8 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Dimensions,
-  Modal,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { FileText, X } from 'lucide-react-native';
+import { Text, View } from 'react-native';
+import { FileText, ShieldAlert } from 'lucide-react-native';
 
-import { APP_COLORS } from '@/theme';
+import { AppModal, AppModalButton } from '@/components/AppModal';
 
 import { getEvacBearing1, getEvacBearing2, getIsolationRadius } from '../simulation';
 import { map2DResponseModalStyles as styles } from './Map2DResponseModal.styles';
@@ -104,96 +96,85 @@ const Map2DResponseModal: React.FC<Map2DResponseModalProps> = ({
   const steps = buildSteps(isoRadius, bearing1, bearing2, oppositeBearing);
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <View style={styles.card} onStartShouldSetResponder={() => true}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Kế hoạch & biện pháp ứng phó sự cố phát tán độc</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <X size={20} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={[styles.body, { maxHeight: Dimensions.get('window').height * 0.6 }]}>
-            <View style={styles.overviewGrid}>
-              <View style={styles.overviewItem}>
-                <Text style={styles.ovLabel}>Hóa chất độc / CAS</Text>
-                <Text style={styles.ovValue}>
-                  {result.chem.name} ({result.chem.cas || 'N/A'})
-                </Text>
-              </View>
-              <View style={styles.overviewItem}>
-                <Text style={styles.ovLabel}>Bán kính cô lập ban đầu</Text>
-                <Text style={styles.ovValueDanger}>R = {isoRadius} m</Text>
-              </View>
-              <View style={styles.overviewItem}>
-                <Text style={styles.ovLabel}>Hướng gió thổi tới</Text>
-                <Text style={styles.ovValue}>
-                  {result.windDirTo}° ({result.U10} m/s)
-                </Text>
-              </View>
-              <View style={styles.overviewItem}>
-                <Text style={styles.ovLabel}>Phương hướng sơ tán tối ưu</Text>
-                <Text style={styles.ovValueSuccess}>
-                  {bearing1}° & {bearing2}°
-                </Text>
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>
-              Phương án bố trí trạm & vị trí tác chiến trên thực địa
-            </Text>
-            {stations.map((s) => (
-              <View key={s.title} style={styles.stationCard}>
-                <Text style={styles.stationTitle}>
-                  {s.icon} {s.title}
-                </Text>
-                <Text style={styles.stationField}>
-                  <Text style={styles.stationFieldLabel}>Tọa độ / Bố trí: </Text>
-                  {s.position}
-                </Text>
-                <Text style={styles.stationField}>
-                  <Text style={styles.stationFieldLabel}>Nhiệm vụ: </Text>
-                  {s.task}
-                </Text>
-                <Text style={styles.stationField}>
-                  <Text style={styles.stationFieldLabel}>Trang bị: </Text>
-                  {s.gear}
-                </Text>
-              </View>
-            ))}
-
-            <View style={styles.guidanceCard}>
-              <Text style={styles.guidanceTitle}>Quy trình 5 bước ứng phó sự cố hóa chất khẩn cấp</Text>
-              {steps.map((step) => (
-                <Text key={step.title} style={styles.guidanceLine}>
-                  <Text style={styles.guidanceBold}>{step.title}: </Text>
-                  {step.body}
-                </Text>
-              ))}
-            </View>
-          </ScrollView>
-
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Đóng</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.exportDocButton}
-              onPress={onExportDoc}
-              disabled={isExportingDoc}
-            >
-              {isExportingDoc ? (
-                <ActivityIndicator size="small" color={APP_COLORS.white} />
-              ) : (
-                <FileText size={14} color={APP_COLORS.white} />
-              )}
-              <Text style={styles.exportDocButtonText}>Xuất Word (.doc)</Text>
-            </TouchableOpacity>
-          </View>
+    <AppModal
+      visible={visible}
+      onClose={onClose}
+      icon={ShieldAlert}
+      tone="success"
+      title="Kế hoạch & biện pháp ứng phó sự cố phát tán độc"
+      subtitle={result.chem.name}
+      size="md"
+      footer={
+        <>
+          <AppModalButton label="Đóng" onPress={onClose} />
+          <AppModalButton
+            label="Xuất Word (.doc)"
+            variant="primary"
+            icon={FileText}
+            loading={isExportingDoc}
+            onPress={onExportDoc}
+          />
+        </>
+      }
+    >
+      <View style={styles.overviewGrid}>
+        <View style={styles.overviewItem}>
+          <Text style={styles.ovLabel}>Hóa chất độc / CAS</Text>
+          <Text style={styles.ovValue}>
+            {result.chem.name} ({result.chem.cas || 'N/A'})
+          </Text>
         </View>
-      </TouchableOpacity>
-    </Modal>
+        <View style={styles.overviewItem}>
+          <Text style={styles.ovLabel}>Bán kính cô lập ban đầu</Text>
+          <Text style={styles.ovValueDanger}>R = {isoRadius} m</Text>
+        </View>
+        <View style={styles.overviewItem}>
+          <Text style={styles.ovLabel}>Hướng gió thổi tới</Text>
+          <Text style={styles.ovValue}>
+            {result.windDirTo}° ({result.U10} m/s)
+          </Text>
+        </View>
+        <View style={styles.overviewItem}>
+          <Text style={styles.ovLabel}>Phương hướng sơ tán tối ưu</Text>
+          <Text style={styles.ovValueSuccess}>
+            {bearing1}° & {bearing2}°
+          </Text>
+        </View>
+      </View>
+
+      <Text style={styles.sectionTitle}>
+        Phương án bố trí trạm & vị trí tác chiến trên thực địa
+      </Text>
+      {stations.map((s) => (
+        <View key={s.title} style={styles.stationCard}>
+          <Text style={styles.stationTitle}>
+            {s.icon} {s.title}
+          </Text>
+          <Text style={styles.stationField}>
+            <Text style={styles.stationFieldLabel}>Tọa độ / Bố trí: </Text>
+            {s.position}
+          </Text>
+          <Text style={styles.stationField}>
+            <Text style={styles.stationFieldLabel}>Nhiệm vụ: </Text>
+            {s.task}
+          </Text>
+          <Text style={styles.stationField}>
+            <Text style={styles.stationFieldLabel}>Trang bị: </Text>
+            {s.gear}
+          </Text>
+        </View>
+      ))}
+
+      <View style={styles.guidanceCard}>
+        <Text style={styles.guidanceTitle}>Quy trình 5 bước ứng phó sự cố hóa chất khẩn cấp</Text>
+        {steps.map((step) => (
+          <Text key={step.title} style={styles.guidanceLine}>
+            <Text style={styles.guidanceBold}>{step.title}: </Text>
+            {step.body}
+          </Text>
+        ))}
+      </View>
+    </AppModal>
   );
 };
 

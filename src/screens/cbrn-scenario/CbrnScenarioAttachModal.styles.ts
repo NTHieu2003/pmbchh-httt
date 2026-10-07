@@ -3,36 +3,9 @@ import { StyleSheet } from 'react-native';
 import { APP_COLORS } from '@/theme';
 import { APP_SPACING, FontSize, Radius } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header, footer)
+// comes from AppModal.
 export const cbrnScenarioAttachModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
-  },
-  card: {
-    width: '92%',
-    maxWidth: 640,
-    height: '80%',
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: APP_SPACING.xs,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: APP_COLORS.navy,
-  },
-  title: {
-    flex: 1,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
   loadingBox: {
     flex: 1,
     alignItems: 'center',
@@ -40,6 +13,18 @@ export const cbrnScenarioAttachModalStyles = StyleSheet.create({
   },
   list: {
     flex: 1,
+  },
+  listContent: {
+    padding: APP_SPACING.lg,
+    gap: APP_SPACING.xs,
+  },
+  listHeader: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    color: APP_COLORS.chatSubtitle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: APP_SPACING.xxs,
   },
   emptyText: {
     fontSize: FontSize.sm,
@@ -50,12 +35,17 @@ export const cbrnScenarioAttachModalStyles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: APP_SPACING.sm,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: APP_COLORS.background,
+    padding: APP_SPACING.sm,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+  },
+  rowSelected: {
+    backgroundColor: '#eef3fd',
+    borderColor: '#c7d6f5',
   },
   rowBody: {
     flex: 1,
@@ -63,61 +53,40 @@ export const cbrnScenarioAttachModalStyles = StyleSheet.create({
   },
   rowTitle: {
     fontSize: FontSize.sm,
-    fontWeight: '700',
+    fontWeight: '600',
     color: APP_COLORS.textPrimary,
   },
   rowMeta: {
     fontSize: FontSize.xs,
     color: APP_COLORS.chatSubtitle,
+    lineHeight: FontSize.xs * 1.5,
   },
-  rowKbup: {
+  kbupPill: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
+    paddingHorizontal: APP_SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: Radius.xl,
+    backgroundColor: '#e8eefb',
+  },
+  kbupPillText: {
     fontSize: FontSize.xs,
+    fontWeight: '600',
     color: APP_COLORS.primary,
-    marginTop: 2,
   },
   checkbox: {
     width: 22,
     height: 22,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: APP_COLORS.chatBorder,
+    marginTop: 1,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#cbd5e1',
+    backgroundColor: APP_COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
     backgroundColor: APP_COLORS.primary,
     borderColor: APP_COLORS.primary,
-  },
-  footer: {
-    flexDirection: 'row',
-    gap: APP_SPACING.sm,
-    padding: APP_SPACING.md,
-    borderTopWidth: 1,
-    borderTopColor: APP_COLORS.chatBorder,
-  },
-  saveButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: APP_SPACING.sm,
-    borderRadius: Radius.md,
-    backgroundColor: APP_COLORS.primary,
-  },
-  saveButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
-  cancelButton: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: APP_SPACING.sm,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
-  },
-  cancelButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
   },
 });

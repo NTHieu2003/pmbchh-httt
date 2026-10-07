@@ -3,48 +3,37 @@ import { StyleSheet } from 'react-native';
 import { APP_COLORS } from '@/theme';
 import { APP_SPACING, FontSize, Radius } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header, footer)
+// comes from AppModal.
 export const cbrnScenarioDetailModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
-  },
-  card: {
-    width: '90%',
-    maxWidth: 560,
-    maxHeight: '80%',
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  header: {
+  fieldGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     gap: APP_SPACING.sm,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: APP_COLORS.navy,
-  },
-  title: {
-    flex: 1,
-    fontSize: FontSize.md,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
-  body: {
-    paddingHorizontal: APP_SPACING.md,
-    paddingTop: APP_SPACING.sm,
   },
   field: {
-    marginBottom: APP_SPACING.md,
+    flexGrow: 1,
+    flexBasis: 160,
+    padding: APP_SPACING.sm,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+  },
+  section: {
+    marginTop: APP_SPACING.sm,
+    padding: APP_SPACING.sm,
+    borderRadius: Radius.md,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
   },
   label: {
     fontSize: FontSize.xs,
     fontWeight: '600',
     color: APP_COLORS.chatSubtitle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
     marginBottom: 4,
   },
   value: {
@@ -58,9 +47,12 @@ export const cbrnScenarioDetailModalStyles = StyleSheet.create({
     gap: 6,
   },
   statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     alignSelf: 'flex-start',
     paddingHorizontal: APP_SPACING.sm,
-    paddingVertical: APP_SPACING.xxs,
+    paddingVertical: 3,
     borderRadius: Radius.xl,
   },
   statusActive: {
@@ -68,6 +60,17 @@ export const cbrnScenarioDetailModalStyles = StyleSheet.create({
   },
   statusInactive: {
     backgroundColor: '#f1f5f9',
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusDotActive: {
+    backgroundColor: '#16a34a',
+  },
+  statusDotInactive: {
+    backgroundColor: '#94a3b8',
   },
   statusText: {
     fontSize: FontSize.xs,
@@ -78,19 +81,5 @@ export const cbrnScenarioDetailModalStyles = StyleSheet.create({
   },
   statusTextInactive: {
     color: APP_COLORS.chatSubtitle,
-  },
-  closeButton: {
-    margin: APP_SPACING.md,
-    alignSelf: 'flex-end',
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.xs,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
-  },
-  closeButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
   },
 });

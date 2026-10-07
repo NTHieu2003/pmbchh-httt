@@ -3,85 +3,62 @@ import { StyleSheet } from 'react-native';
 import { APP_COLORS } from '@/theme';
 import { APP_SPACING, FontSize, Radius } from '@/utils';
 
+// Body-only styles — the dialog shell (backdrop, card, header, footer)
+// comes from AppModal. The danger/success value colors and the amber
+// procedure card encode data/severity and stay as they were.
 export const map2DResponseModalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: APP_SPACING.xl,
-  },
-  card: {
-    width: '92%',
-    maxWidth: 640,
-    maxHeight: '85%',
-    backgroundColor: APP_COLORS.surface,
-    borderRadius: Radius.lg,
-    overflow: 'hidden',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: APP_SPACING.sm,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.sm,
-    backgroundColor: '#0f766e',
-  },
-  title: {
-    flex: 1,
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: APP_COLORS.white,
-  },
-  body: {
-    paddingHorizontal: APP_SPACING.md,
-    paddingTop: APP_SPACING.sm,
-  },
   overviewGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: APP_SPACING.sm,
-    marginBottom: APP_SPACING.sm,
+    marginBottom: APP_SPACING.md,
   },
   overviewItem: {
     flexGrow: 1,
-    minWidth: 140,
-    backgroundColor: APP_COLORS.background,
-    borderRadius: Radius.sm,
+    flexBasis: 160,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#eef0f3',
+    borderRadius: Radius.md,
     padding: APP_SPACING.sm,
   },
   ovLabel: {
-    fontSize: 10,
+    fontSize: FontSize.xs,
+    fontWeight: '600',
     color: APP_COLORS.chatSubtitle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   ovValue: {
     fontSize: FontSize.sm,
     fontWeight: '700',
     color: APP_COLORS.textPrimary,
-    marginTop: 2,
+    marginTop: 4,
   },
   ovValueDanger: {
     fontSize: FontSize.sm,
     fontWeight: '700',
     color: '#dc2626',
-    marginTop: 2,
+    marginTop: 4,
   },
   ovValueSuccess: {
     fontSize: FontSize.sm,
     fontWeight: '700',
     color: '#16a34a',
-    marginTop: 2,
+    marginTop: 4,
   },
   sectionTitle: {
-    fontSize: FontSize.sm,
-    fontWeight: '700',
-    color: APP_COLORS.textPrimary,
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    color: APP_COLORS.chatSubtitle,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
     marginBottom: APP_SPACING.xs,
   },
   stationCard: {
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
+    borderColor: '#eef0f3',
     borderRadius: Radius.md,
     padding: APP_SPACING.sm,
     marginBottom: APP_SPACING.xs,
@@ -108,8 +85,7 @@ export const map2DResponseModalStyles = StyleSheet.create({
     borderColor: '#fde68a',
     borderRadius: Radius.md,
     padding: APP_SPACING.sm,
-    marginTop: APP_SPACING.xs,
-    marginBottom: APP_SPACING.sm,
+    marginTop: APP_SPACING.sm,
   },
   guidanceTitle: {
     fontSize: FontSize.sm,
@@ -125,37 +101,5 @@ export const map2DResponseModalStyles = StyleSheet.create({
   },
   guidanceBold: {
     fontWeight: '700',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: APP_SPACING.sm,
-    margin: APP_SPACING.md,
-  },
-  closeButton: {
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.xs,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: APP_COLORS.chatBorder,
-  },
-  closeButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.textPrimary,
-  },
-  exportDocButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: APP_SPACING.md,
-    paddingVertical: APP_SPACING.xs,
-    borderRadius: Radius.md,
-    backgroundColor: '#0f766e',
-  },
-  exportDocButtonText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
-    color: APP_COLORS.white,
   },
 });

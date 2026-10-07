@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
-
 import { GuidePropertyApi } from '@/api/guideproperty';
 import { PmbcHdsdChatbotApi } from '@/api/pmbchdsdchatbot';
+import { appAlert } from '@/components/AppDialog';
 import { useDebounce } from '@/hooks/useDebounce';
 
 import type { PmbcHdsdChatbot } from '@/types';
@@ -77,7 +76,7 @@ export const useChatbotGuide = (): UseChatbotGuideResult => {
         const fileName = detail?.file_dinhkem;
         if (!fileName) {
           // Matches web's exact warning copy from openDialogHuongdan().
-          Alert.alert(
+          appAlert(
             'Thông báo',
             type === 'pdf'
               ? 'Chưa cấu hình file PDF trong Tham số hệ thống'
@@ -91,7 +90,7 @@ export const useChatbotGuide = (): UseChatbotGuideResult => {
           title: type === 'video' ? 'Hướng dẫn Video' : 'Hướng dẫn PDF',
         });
       })
-      .catch(() => Alert.alert('Lỗi', 'Không tải được tài liệu hướng dẫn.'))
+      .catch(() => appAlert('Lỗi', 'Không tải được tài liệu hướng dẫn.'))
       .finally(() => setIsResolvingGuide(false));
   }, []);
 

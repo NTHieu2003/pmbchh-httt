@@ -13,6 +13,8 @@ import { Download, FileSpreadsheet, FileText, Menu } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppPopover, type AppPopoverAnchor, type AppPopoverItem } from '@/components/AppPopover';
+import { HeaderUserMenu } from '@/components/HeaderUserMenu';
+import { PdfViewerModal } from '@/components/PdfViewerModal';
 import { APP_COLORS } from '@/theme';
 
 import { chatbotDomainsScreenStyles as styles } from './ChatbotDomainsScreen.styles';
@@ -45,6 +47,8 @@ const ChatbotDomainsScreen: React.FC = () => {
     closeDetail,
     isExporting,
     onExport,
+    pdfPreview,
+    closePdfPreview,
   } = useChatbotDomains();
 
   const openExportMenu = (event: GestureResponderEvent) => {
@@ -91,6 +95,7 @@ const ChatbotDomainsScreen: React.FC = () => {
             {isExporting ? 'Đang xuất...' : 'Xuất dữ liệu'}
           </Text>
         </TouchableOpacity>
+        <HeaderUserMenu />
       </View>
 
       {isLoading ? (
@@ -134,6 +139,7 @@ const ChatbotDomainsScreen: React.FC = () => {
         items={exportPopoverItems}
         onClose={() => setExportPopoverAnchor(null)}
       />
+      <PdfViewerModal file={pdfPreview} onClose={closePdfPreview} />
     </SafeAreaView>
   );
 };

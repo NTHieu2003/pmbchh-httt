@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from 'react-native';
-import { X } from 'lucide-react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { AlertTriangle, FileText, PlayCircle } from 'lucide-react-native';
 import Pdf from 'react-native-pdf';
 import RNFS from 'react-native-fs';
 import { WebView } from 'react-native-webview';
 
 import { CommonApi } from '@/api/common';
+import { AppModal } from '@/components/AppModal';
 import { APP_COLORS } from '@/theme';
 
 import { getMimeType } from './fileMimeType';
@@ -82,15 +83,16 @@ const GuideFileViewerModal: React.FC<GuideFileViewerModalProps> = ({
     if (isLoading) {
       return (
         <View style={styles.centerBox}>
-          <ActivityIndicator color={APP_COLORS.white} />
-          <Text style={styles.loadingText}>Đang tải tệp...</Text>
+          <ActivityIndicator color={APP_COLORS.chatSubtitle} />
+          <Text style={styles.stateText}>Đang tải tệp...</Text>
         </View>
       );
     }
     if (hasError || !filePath) {
       return (
         <View style={styles.centerBox}>
-          <Text style={styles.errorText}>
+          <AlertTriangle size={32} color={APP_COLORS.chatSubtitle} />
+          <Text style={styles.stateText}>
             Không tải được tệp "{viewer.fileName}". Vui lòng thử lại sau.
           </Text>
         </View>
@@ -100,12 +102,13 @@ const GuideFileViewerModal: React.FC<GuideFileViewerModalProps> = ({
       return (
         <Pdf
           source={{ uri: `file://${filePath}` }}
-          style={styles.webview}
+          style={styles.pdf}
           onError={() => setHasError(true)}
         />
       );
     }
     const mimeType = getMimeType(viewer.fileName, 'video/mp4');
+    // Video stays on black — playback looks best letterboxed in the dark.
     return (
       <WebView
         source={{
@@ -114,7 +117,7 @@ const GuideFileViewerModal: React.FC<GuideFileViewerModalProps> = ({
               <video src="file://${filePath}" type="${mimeType}" controls autoplay style="max-width:100%;max-height:100%;"></video>
             </body></html>`,
         }}
-        style={styles.webview}
+        style={styles.video}
         originWhitelist={['*']}
         allowFileAccess
         allowFileAccessFromFileURLs
@@ -128,26 +131,22 @@ const GuideFileViewerModal: React.FC<GuideFileViewerModalProps> = ({
     );
   };
 
+  const showVideoCanvas = viewer.type === 'video' && !isLoading && !hasError && !!filePath;
+
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <View style={styles.header}>
-            <Text style={styles.title} numberOfLines={1}>
-              {viewer.title}
-            </Text>
-            <TouchableOpacity
-              onPress={onClose}
-              style={styles.closeButton}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <X size={18} color={APP_COLORS.white} />
-            </TouchableOpacity>
-          </View>
-          {renderBody()}
-        </View>
-      </View>
-    </Modal>
+    <AppModal
+      visible
+      onClose={onClose}
+      icon={viewer.type === 'pdf' ? FileText : PlayCircle}
+      title={viewer.title}
+      subtitle={viewer.fileName}
+      size="xl"
+      scrollable={false}
+      heightRatio={0.9}
+      bodyStyle={[styles.canvas, showVideoCanvas && styles.canvasVideo]}
+    >
+      {renderBody()}
+    </AppModal>
   );
 };
 

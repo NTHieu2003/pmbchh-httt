@@ -9,6 +9,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
 
+import { AppDialogHost } from '@/components/AppDialog';
 import { queryClient } from '@/configs';
 import { AppNavigator } from '@/navigation/AppNavigator';
 import { useAuthStore } from '@/stores';
@@ -31,6 +32,7 @@ function App() {
           <KeyboardProvider>
             <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
             <AppNavigator />
+            <AppDialogHost />
           </KeyboardProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

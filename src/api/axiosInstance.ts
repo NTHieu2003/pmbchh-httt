@@ -54,10 +54,6 @@ export const axiosInstance = (baseURL?: string): AxiosInstance => {
         config.url = config.url.slice(GATEWAY_PREFIX.length) || '/';
       }
 
-      if (__DEV__) {
-        console.log('[API REQUEST]', config.method?.toUpperCase(), config.url);
-      }
-
       return config;
     },
     (error) => Promise.reject(error)
@@ -100,17 +96,6 @@ export const axiosInstance = (baseURL?: string): AxiosInstance => {
 
       if (isUnauthorized) {
         await useAuthStore.getState().logout();
-      }
-
-      if (__DEV__) {
-        console.log(
-          '[API ERROR]',
-          error.config?.url,
-          error.response?.status,
-          error.response?.data,
-          error.message,
-          error.code
-        );
       }
 
       return Promise.reject(error);

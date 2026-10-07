@@ -1,3 +1,8 @@
+## Rules for Reading Codebase
+- DO NOT search or read files inside `node_modules/`, `ios/Pods/`, or build directories.
+- Focus ONLY on application source code located inside `src/` (or `app/`).
+- If you need to understand an external library API, refer to type definitions or ask me instead of scanning `node_modules`.
+
 # pmbc_mobile_v2 — Session Handoff Notes
 
 Living context doc for continuing work on this project across Claude Code sessions.
@@ -11,7 +16,7 @@ a Java/Spring backend (**tnd_java_angular/fw-service**). This repo does not cont
 those — they're separate repos/checkouts that need to be available locally (sibling directories
 on the machine doing the work, paths vary per setup) whenever a feature needs to be verified
 against web/backend source instead of guessed:
-
+T
 - **`pmbc_web`** (Angular admin system) — the source of truth for every feature being ported.
   When in doubt about an API contract or business rule, **read pmbc_web's source first**, don't
   guess. Angular app lives under `tnd_angular_web/admin/projects/web-admin/src/app/` inside that
@@ -41,8 +46,10 @@ ongoing feature parity work.
   - Response interceptor **unwraps `response.data`** — so every API function's `response`
     variable is already the body, not an axios envelope. Cast through `unknown` when typing.
   - On 401: tries one silent refresh via `/auth/refresh`, else logs out.
-  - `if (__DEV__) console.log('[API REQUEST]', method, url)` and `[API ERROR]` on failure —
-    **use `adb logcat -s ReactNativeJS` to watch these when debugging network issues.**
+  - **No request/response logging** — the old `[API REQUEST]`/`[API ERROR]` `console.log`s (and a
+    `console.log(username, password)` in `authStore.login`) were removed on 2026-10-07 per explicit
+    user request, for data safety. **Never log credentials, tokens or response bodies.** When
+    debugging a network issue, add a temporary log locally and remove it before finishing.
   - `resolveApiPath`/`shouldStripGatewayPrefix`: strips a leading `/gateway` from request paths
     **only** when the configured `API_URL` host contains `gateway_bchh` (i.e. already terminates
     at the gateway). Every endpoint constant in this codebase is written with a `/gateway/...`
@@ -143,8 +150,9 @@ ongoing feature parity work.
   - `GET /gateway/chatbot/conversations/search?userId=&key=&filter=recent|starred&page=&size=` —
     paginated conversation list, debounced 300ms.
   - `pinConversation`/`starConversation`/`deleteConversation`/`getMessagesPage` — all wired (see
-    §4). `upsertConversation` (persists a conversation after a stream completes) is **not** called
-    from mobile, so mobile-originated chats never appear in the left sidebar's own search results.
+    §4). `upsertConversation` (persists a conversation after a stream completes) is called from
+    `useChat.hook.ts` after each successful stream, so mobile-originated chats show up in the left
+    sidebar's search results.
 - **Meeting-room STT (speech-to-text) pipeline** — ported from web's "Tiến trình cuộc họp"
   mic-triggered transcription:
   - **Separate WebSocket** from the main `MeetingSocketService` — dedicated `SttSocketService`.
@@ -391,6 +399,33 @@ streamed live text is kept as-is (not re-transcribed) — see §3.
   closed once never re-opened it (no `onFocus` fired again) — fixed by force-reopening
   (`setIsOpen(true)`) on every `onChangeText`, not just `onFocus`.
 - `AppPopover` — see §2.
+- `HeaderUserMenu` — top-right of every drawer screen's header (user name chip from
+  `useAuthStore.user` `fullname`/`username` + "Đăng xuất" button). Also exports
+  `useConfirmLogout()`, the single shared logout-confirm `Alert`, used by the drawer footer too.
+  **Any new drawer screen must render `<HeaderUserMenu />` as the last child of its header row.**
+- `PdfViewerModal` — in-app viewer (`react-native-pdf`) for a PDF already written to disk
+  (`file: { path, fileName } | null`). Every "Xuất PDF" export (CBRN scenario, chatbot domains)
+  writes the file to Downloads, then opens it here instead of showing a success Alert (hooks expose
+  `pdfPreview`/`closePdfPreview`). The file stays in Downloads after closing. Excel exports keep the
+  Alert. **Reuse this for any future PDF export.**
+- **`AppModal` + `AppModalButton`** (`src/components/AppModal/`) — the ONE dialog shell for the whole
+  app (since 2026-10-07 every dialog uses it; no raw `<Modal>` outside it and `AppPopover`). White
+  card (radius 20, shadow), header with tinted icon chip + title + subtitle + round close button,
+  footer button bar, fade/scale-in. Props: `size` sm/md/lg/xl, `heightRatio` (fixed height for
+  list/viewer bodies, with `scrollable={false}`), `avoidKeyboard` (keyboard-controller KAV),
+  `dismissOnBackdrop`. It bakes in §6.16–18: exactly one `GestureHandlerRootView` per Modal
+  (**never add another inside a dialog**), backdrop is a sibling `Pressable` (not an ancestor
+  touchable), scrolling body gets a pixel maxHeight. Body styles convention: soft section cards
+  `#f8fafc` / border `#eef0f3`, uppercase small labels, pill badges — see `DomainFieldDetailModal`.
+- **`appAlert(title, message?, buttons?, options?)`** (`src/components/AppDialog/`) — replaces
+  `Alert.alert` everywhere (same signature; **never use `Alert.alert` again**). Rendered by
+  `<AppDialogHost />` mounted once in `App.tsx`; calls queue. Tone (icon/color) inferred: destructive
+  button → danger ⚠, title "Lỗi/Không thể/thất bại" → error ⊗, "thành công" → success ✓, 2+ buttons
+  → warning, else info; override with `{ tone }`. Android back/backdrop = the cancel button.
+- `HorizontalBarChart` — card with a one-hue, descending-sorted horizontal bar chart, each bar
+  labeled with value + share (no legend/tooltip needed), optional "Dữ liệu mẫu" chip. Plain Views,
+  no SVG. Used by "Tiến độ dữ liệu" (`DataTypeChart`) and "Dashboard người dùng" (feature usage).
+  **Use this for any future magnitude-by-category chart.**
 
 ## 5. Auth store (`src/stores/authStore.ts`)
 
@@ -546,8 +581,8 @@ it's always present synchronously on mount.
   adb logcat -c   # clear first for a clean capture window
   adb logcat -s "ReactNativeJS"
   ```
-  or filter for a specific tag added temporarily (e.g. `grep "API ERROR" -A 30` to capture the
-  full multi-line error body that follows the one-line `[API ERROR]` log).
+  or filter for a specific tag added temporarily (the app has no permanent API logging any more —
+  see §2; remove any temporary log before finishing).
 - Typecheck before considering any change done: `npx tsc --noEmit` (must be silent/empty).
 - Lint the touched files: `npx eslint <paths>` (must be silent/empty).
 - Rebuild + reinstall after a **native**-affecting change (new native deps, Android
@@ -565,34 +600,48 @@ it's always present synchronously on mount.
   `curl` the suspect endpoint directly — see §6, point 22 for why this is worth doing before
   assuming a mobile-side bug.
 
-## 9. Pending / not-yet-requested next steps
+## 9. Status: implementation complete — on-device verification remaining
 
-(Not committed to — just what's visibly incomplete, for the next session's awareness.)
+All previously-pending implementation work is **done** (per the user, 2026-10-06). The only
+remaining work is **verifying on-device** (Galaxy Tab S7 Lite, `R52R70A5V2D`) that each item below
+actually behaves like web. Tick items off here as they're confirmed; if one fails, fix it and note
+the root cause in §6.
 
-- Left sidebar's star/pin/delete/tap-to-load are wired and typecheck clean but — at least as of
-  when they were built — **hadn't yet been walked through on-device** step by step (kebab menu
-  open/close, pin/star/delete round-trip, tap-to-load). Worth a quick on-device sanity pass if
-  touching that area again.
-- No conversation persistence from mobile — `upsertConversation` is never called after a stream
-  finishes, so mobile-originated chats never appear in the left sidebar's own search results.
-- Right sidebar's "Ngành đặc thù" selection isn't sent in the send-message payload (no field for
-  it was found in web's contract — may be for a different, not-yet-ported feature).
-- "Admin" greeting name on the chatbot screen is still hardcoded (no user-profile API wired for
-  display name yet, even though `UserApi.getDetail()` exists and could supply `fullname`).
-- Logout has no dedicated confirm-dialog design (native `Alert.alert` placeholder, explicitly
-  called "tạm thời"/temporary by the user) — revisit styling if a reference shows up.
-- CBRN scenario export's 500 error is now understood **and genuinely fixed** (host switched back
-  + unique file names) — if it ever resurfaces, re-check §6 point 22 in order (host/template
-  first, then stale-filename `EACCES` second) rather than re-diagnosing from scratch.
-- Map image export (html2canvas-based) was implemented and typechecked but had **not yet been
-  explicitly re-confirmed working on-device by the user** as of this writing — worth a quick
-  on-device check (export, open the PNG, confirm the drawn polygons/markers are actually in it)
-  next time this area is touched.
-- "Xuất PA ứng phó" (.doc) export (CBRN simulation) was implemented, typechecked, and built/
-  installed, but **not yet explicitly confirmed opening correctly in Word on-device** by the user.
-- Chatbot domains export (Excel/PDF) was implemented and typechecked; same "not yet explicitly
-  re-confirmed on-device" caveat applies.
-- `npm install react-native-markdown-display` was run once while the shell's active Node was the
-  system default `20.19.4` (not the pinned `22.21.0`) — install itself succeeded (only
-  `EBADENGINE` warnings, non-fatal), but if Metro/build weirdness ever shows up around this
-  package specifically, try reinstalling under the correct Node version first.
+- [ ] **Left sidebar conversations**: kebab menu open/close, pin/unpin, star/unstar, delete
+  (with confirm) round-trip, tap-to-load a conversation.
+- [ ] **Conversation persistence**: a chat started on mobile shows up in the left sidebar's
+  search results after the stream finishes (`upsertConversation`).
+- [ ] **"Ngành đặc thù" selection** is sent/applied correctly when chatting.
+- [ ] **Chatbot greeting** shows the real user's name instead of a hardcoded "Admin".
+- [ ] **Logout** confirm flow works and clears session (real `/gateway/auth/logout`).
+- [ ] **CBRN scenario export** (Excel + PDF, filtered + unfiltered) downloads and opens correctly.
+- [ ] **Chatbot domains export** (Excel + PDF) downloads and opens correctly.
+- [ ] **CBRN map image export** (html2canvas): open the PNG and confirm tiles, drawn polygons and
+  station markers are all present.
+- [ ] **"Xuất PA ứng phó" (.doc)**: file opens correctly in Word on-device, from both the toolbar
+  button and the response-plan modal's footer button.
+
+- [ ] **Dialog redesign (AppModal/appAlert, 2026-10-07)** — verified on-device: logout confirm,
+  export success, PDF viewer, domain detail, CBRN attach, meeting plan info (incl. seating tab).
+  Still to check: two-finger pinch on the seating chart inside the new shell, an `appAlert` on top
+  of an open dialog (e.g. CBRN attach → Lưu → success), meeting-room dialogs (agenda/documents/
+  speech/create-speech, need a live meeting), Map2D impact/response dialogs, guide video viewer.
+
+**Waiting on backend API (static data for now):** "Tiến độ dữ liệu" screen's two bottom sections —
+`DataTypeChart` (bar chart of document types built) and `ActiveContributorsList` (most active
+users). Data comes from `dashboard-data-progress/buildStatsStatic.ts` via
+`useDashboardDataProgress` (`dataTypeStats`, `activeContributors`, `isSampleData` → "Dữ liệu mẫu"
+chip). When the user provides the APIs: fetch in the hook, set `isSampleData: false`, delete the
+static constants — the components only depend on the `DataTypeStat`/`ActiveContributor` types.
+Same for "Dashboard người dùng"'s bottom chart "Loại chức năng hay được sử dụng":
+`dashboard-user-stats/featureUsageStatic.ts` → `useDashboardUserStats` (`featureUsage`,
+`isFeatureUsageSample`); the real API should honor the screen's Từ ngày/Đến ngày/Đơn vị filter.
+That screen now scrolls as a whole (`ScrollView`, `keyboardShouldPersistTaps="handled"` for the
+AppSelect dropdown) and its Top-5 `bottomRow` has a fixed `height: 420` — it can't `flex: 1`
+inside a ScrollView, and TopListCard's inner `flex: 1` list would collapse (§6.16).
+
+Notes for debugging if a verification fails:
+- Export 500 resurfacing → re-check §6 point 22 in order (host/template first, then
+  stale-filename `EACCES`).
+- `react-native-markdown-display` was once installed under Node `20.19.4` instead of the pinned
+  `22.21.0` — if Metro/build weirdness shows up around it, reinstall under the correct Node first.

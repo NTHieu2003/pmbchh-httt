@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Modal,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Check, Paperclip, X } from 'lucide-react-native';
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Check, Paperclip } from 'lucide-react-native';
 
 import { TinhHuongHuanLuyenApi } from '@/api/tinhhuonghuanluyen';
+import { appAlert } from '@/components/AppDialog';
+import { AppModal, AppModalButton } from '@/components/AppModal';
 import { APP_COLORS } from '@/theme';
 
 import { cbrnScenarioAttachModalStyles as styles } from './CbrnScenarioAttachModal.styles';
@@ -67,86 +61,99 @@ const CbrnScenarioAttachModal: React.FC<CbrnScenarioAttachModalProps> = ({
 
   const onSave = () => {
     if (selectedGids.size === 0) {
-      Alert.alert('Thông báo', 'Chọn ít nhất 1 tình huống huấn luyện.');
+      appAlert('Thông báo', 'Chọn ít nhất 1 tình huống huấn luyện.');
       return;
     }
     setIsSaving(true);
     TinhHuongHuanLuyenApi.attachKbup(item.gid, Array.from(selectedGids))
       .then((success) => {
         if (!success) throw new Error('attach failed');
-        Alert.alert('Thông báo', 'Đính kèm kịch bản ứng phó thành công.');
+        appAlert('Thông báo', 'Đính kèm kịch bản ứng phó thành công.');
         onSaved();
         onClose();
       })
-      .catch(() => Alert.alert('Lỗi', 'Đính kèm thất bại. Vui lòng thử lại.'))
+      .catch(() => appAlert('Lỗi', 'Đính kèm thất bại. Vui lòng thử lại.'))
       .finally(() => setIsSaving(false));
   };
 
+  // Fixed-height card (the FlatList fills it and scrolls itself); backdrop
+  // dismiss is off so a stray tap doesn't drop the checkbox selection.
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <View style={styles.card} onStartShouldSetResponder={() => true}>
-          <View style={styles.header}>
-            <Paperclip size={18} color={APP_COLORS.white} />
-            <Text style={styles.title} numberOfLines={1}>
-              Đính kèm kịch bản ứng phó sự cố
-            </Text>
-            <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <X size={20} color="#ffffff" />
-            </TouchableOpacity>
-          </View>
-
-          {isLoading ? (
-            <View style={styles.loadingBox}>
-              <ActivityIndicator color={APP_COLORS.primary} />
-            </View>
-          ) : (
-            <FlatList
-              style={styles.list}
-              data={situations}
-              keyExtractor={(row) => String(row.gid)}
-              ListEmptyComponent={
-                <Text style={styles.emptyText}>Chưa có tình huống huấn luyện nào.</Text>
-              }
-              renderItem={({ item: row }) => {
-                const isSelected = selectedGids.has(row.gid);
-                return (
-                  <TouchableOpacity style={styles.row} onPress={() => toggle(row.gid)}>
-                    <View style={styles.rowBody}>
-                      <Text style={styles.rowTitle} numberOfLines={2}>
-                        {row.ten_tinhhuong || '(Chưa có tên)'}
-                      </Text>
-                      {!!row.mo_ta && (
-                        <Text style={styles.rowMeta} numberOfLines={2}>
-                          {row.mo_ta}
-                        </Text>
-                      )}
-                      <Text style={styles.rowKbup}>KBUP hiện tại: {row.kbup_ten || '-'}</Text>
-                    </View>
-                    <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
-                      {isSelected && <Check size={14} color={APP_COLORS.white} />}
-                    </View>
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          )}
-
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.saveButton} onPress={onSave} disabled={isSaving}>
-              {isSaving ? (
-                <ActivityIndicator size="small" color={APP_COLORS.white} />
-              ) : (
-                <Text style={styles.saveButtonText}>Lưu</Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={onClose} disabled={isSaving}>
-              <Text style={styles.cancelButtonText}>Hủy bỏ</Text>
-            </TouchableOpacity>
-          </View>
+    <AppModal
+      visible
+      onClose={onClose}
+      icon={Paperclip}
+      title="Đính kèm kịch bản ứng phó sự cố"
+      subtitle={item.ten_kich_ban_cbrn || undefined}
+      size="md"
+      heightRatio={0.8}
+      scrollable={false}
+      dismissOnBackdrop={false}
+      footer={
+        <>
+          <AppModalButton label="Hủy bỏ" onPress={onClose} disabled={isSaving} />
+          <AppModalButton
+            label="Lưu"
+            variant="primary"
+            icon={Check}
+            loading={isSaving}
+            onPress={onSave}
+          />
+        </>
+      }
+    >
+      {isLoading ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator color={APP_COLORS.primary} />
         </View>
-      </TouchableOpacity>
-    </Modal>
+      ) : (
+        <FlatList
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+          data={situations}
+          keyExtractor={(row) => String(row.gid)}
+          ListHeaderComponent={
+            situations.length > 0 ? (
+              <Text style={styles.listHeader}>
+                Tình huống huấn luyện · đã chọn {selectedGids.size}/{situations.length}
+              </Text>
+            ) : undefined
+          }
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Chưa có tình huống huấn luyện nào.</Text>
+          }
+          renderItem={({ item: row }) => {
+            const isSelected = selectedGids.has(row.gid);
+            return (
+              <TouchableOpacity
+                style={[styles.row, isSelected && styles.rowSelected]}
+                activeOpacity={0.7}
+                onPress={() => toggle(row.gid)}
+              >
+                <View style={[styles.checkbox, isSelected && styles.checkboxChecked]}>
+                  {isSelected && <Check size={14} color={APP_COLORS.white} />}
+                </View>
+                <View style={styles.rowBody}>
+                  <Text style={styles.rowTitle} numberOfLines={2}>
+                    {row.ten_tinhhuong || '(Chưa có tên)'}
+                  </Text>
+                  {!!row.mo_ta && (
+                    <Text style={styles.rowMeta} numberOfLines={2}>
+                      {row.mo_ta}
+                    </Text>
+                  )}
+                  <View style={styles.kbupPill}>
+                    <Text style={styles.kbupPillText} numberOfLines={1}>
+                      KBUP hiện tại: {row.kbup_ten || '-'}
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      )}
+    </AppModal>
   );
 };
 

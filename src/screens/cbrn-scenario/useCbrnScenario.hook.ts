@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert } from 'react-native';
 import RNFS from 'react-native-fs';
 
+import type { PdfViewerFile } from '@/components/PdfViewerModal';
+
 import { PmbcKichBanUngPhoCbrnApi } from '@/api/pmbckichbanungphocbrn';
+import { appAlert } from '@/components/AppDialog';
 import { useDebounce } from '@/hooks/useDebounce';
 
 import type { PmbcKichBanUngPhoCbrnItem } from '@/types';
@@ -28,6 +30,10 @@ export interface UseCbrnScenarioResult {
   // 1 = Excel (.xls), 2 = PDF — matches web's "Xuất dữ liệu" dropdown
   // ("In Excel" / "In PDF", printDL(type)).
   onExport: (type: 1 | 2) => void;
+  // Set after a PDF export is written — the screen opens it in the
+  // in-app viewer right away (Excel exports still just show an alert dialog).
+  pdfPreview: PdfViewerFile | null;
+  closePdfPreview: () => void;
 }
 
 const EXPORT_FILE_BASE_NAME = 'LIST_KICHBANUNGPHOCBRN_EXPORT';
@@ -44,6 +50,8 @@ export const useCbrnScenario = (): UseCbrnScenarioResult => {
   const [isError, setIsError] = useState(false);
   const [selectedItem, setSelectedItem] = useState<PmbcKichBanUngPhoCbrnItem | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [pdfPreview, setPdfPreview] = useState<PdfViewerFile | null>(null);
+  const closePdfPreview = useCallback(() => setPdfPreview(null), []);
 
   // "Tra cứu kịch bản" — matches web's quick-search box (bound to
   // `ten_kich_ban_cbrn`) plus its `trang_thai` filter select.
@@ -121,13 +129,17 @@ export const useCbrnScenario = (): UseCbrnScenarioResult => {
           const dir = RNFS.DownloadDirectoryPath || RNFS.DocumentDirectoryPath;
           const path = `${dir}/${fileName}`;
           await RNFS.writeFile(path, res.blob, 'base64');
-          Alert.alert(
+          if (type === 2) {
+            setPdfPreview({ path, fileName });
+            return;
+          }
+          appAlert(
             'Xuất dữ liệu thành công',
             `Đã lưu file "${fileName}" vào thư mục Downloads.`
           );
         })
         .catch(() => {
-          Alert.alert('Lỗi', 'Không thể xuất dữ liệu. Vui lòng thử lại.');
+          appAlert('Lỗi', 'Không thể xuất dữ liệu. Vui lòng thử lại.');
         })
         .finally(() => setIsExporting(false));
     },
@@ -150,5 +162,7 @@ export const useCbrnScenario = (): UseCbrnScenarioResult => {
     closeDetail,
     isExporting,
     onExport,
+    pdfPreview,
+    closePdfPreview,
   };
 };

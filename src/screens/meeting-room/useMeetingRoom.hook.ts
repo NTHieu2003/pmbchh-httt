@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import RNFS from 'react-native-fs';
@@ -11,6 +10,7 @@ import { MessageVoidChatApi } from '@/api/messageVoidChat';
 import { SoDoPhongHopApi } from '@/api/sodophonghop';
 import { TaiLieuChuongTrinhHopApi } from '@/api/tailieuchuongtrinhhop';
 import { ThanhPhanThamGiaApi } from '@/api/thanhphanthamgia';
+import { appAlert } from '@/components/AppDialog';
 import {
   AudioPlaybackService,
   AudioRecordingService,
@@ -389,7 +389,7 @@ export const useMeetingRoom = (khpGid: number): UseMeetingRoomResult => {
       });
 
       if (userId != null && targetUserId === userId && fromUserId !== userId) {
-        Alert.alert(
+        appAlert(
           'Thông báo',
           status ? 'Chủ trì đã bật mic của bạn!' : 'Chủ trì đã tắt mic của bạn!'
         );
@@ -766,14 +766,16 @@ export const useMeetingRoom = (khpGid: number): UseMeetingRoomResult => {
           const targetUserId = Number(parts[1]);
           const fromUserId = Number(parts[3]);
           if (userId != null && targetUserId === userId && fromUserId !== userId) {
-            Alert.alert(
+            appAlert(
               'Thông báo',
               micStatusRef.current[targetUserId]
                 ? 'Chủ trì đã nhắc nhở quá thời gian phát biểu!'
-                : 'Chủ trì đã nhắc nhở chuẩn bị phát biểu!'
+                : 'Chủ trì đã nhắc nhở chuẩn bị phát biểu!',
+              undefined,
+              { tone: 'warning' }
             );
           } else if (userId != null && fromUserId === userId) {
-            Alert.alert('Thông báo', 'Đã gửi thông báo nhắc nhở!');
+            appAlert('Thông báo', 'Đã gửi thông báo nhắc nhở!');
           }
         }
       });

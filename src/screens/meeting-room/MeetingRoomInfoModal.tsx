@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Dimensions, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { X } from 'lucide-react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { Info } from 'lucide-react-native';
+
+import { AppModal, AppModalButton } from '@/components/AppModal';
 
 import { meetingRoomInfoModalStyles as styles } from './MeetingRoomInfoModal.styles';
 
@@ -44,82 +46,73 @@ const MeetingRoomInfoModal: React.FC<MeetingRoomInfoModalProps> = ({
     : '—';
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose}>
-        <View style={styles.card} onStartShouldSetResponder={() => true}>
-          <View style={styles.header}>
-            <Text style={styles.title} numberOfLines={2}>
-              {khtochuchop?.khp_tieude || '(Chưa có tiêu đề)'}
+    <AppModal
+      visible
+      onClose={onClose}
+      icon={Info}
+      title={khtochuchop?.khp_tieude || '(Chưa có tiêu đề)'}
+      subtitle="Thông tin cuộc họp"
+      size="md"
+      footer={<AppModalButton label="Đóng" onPress={onClose} />}
+    >
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'thongtin' && styles.tabActive]}
+          onPress={() => setActiveTab('thongtin')}
+        >
+          <Text style={[styles.tabText, activeTab === 'thongtin' && styles.tabTextActive]}>
+            Thông tin
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'sodocho' && styles.tabActive]}
+          onPress={() => setActiveTab('sodocho')}
+        >
+          <Text style={[styles.tabText, activeTab === 'sodocho' && styles.tabTextActive]}>
+            Sơ đồ chỗ ngồi
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {activeTab === 'thongtin' ? (
+        <View style={styles.fieldGrid}>
+          <View style={[styles.field, styles.fieldWide]}>
+            <Text style={styles.label}>Thời gian</Text>
+            <Text style={styles.value}>
+              {formatDateTime(khtochuchop?.khp_thoigiantu)} đến{' '}
+              {formatDateTime(khtochuchop?.khp_thoigianden)}
             </Text>
-            <TouchableOpacity onPress={onClose} hitSlop={8}>
-              <X size={20} color="#ffffff" />
-            </TouchableOpacity>
           </View>
 
-          <View style={styles.tabRow}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'thongtin' && styles.tabActive]}
-              onPress={() => setActiveTab('thongtin')}
-            >
-              <Text style={[styles.tabText, activeTab === 'thongtin' && styles.tabTextActive]}>
-                Thông tin
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'sodocho' && styles.tabActive]}
-              onPress={() => setActiveTab('sodocho')}
-            >
-              <Text style={[styles.tabText, activeTab === 'sodocho' && styles.tabTextActive]}>
-                Sơ đồ chỗ ngồi
-              </Text>
-            </TouchableOpacity>
+          <View style={[styles.field, styles.fieldWide]}>
+            <Text style={styles.label}>Địa điểm</Text>
+            <Text style={styles.value}>{meetingLocation || '—'}</Text>
           </View>
 
-          {activeTab === 'thongtin' ? (
-            <ScrollView style={[styles.body, { maxHeight: Dimensions.get('window').height * 0.55 }]}>
-              <View style={styles.field}>
-                <Text style={styles.label}>Thời gian</Text>
-                <Text style={styles.value}>
-                  {formatDateTime(khtochuchop?.khp_thoigiantu)} đến{' '}
-                  {formatDateTime(khtochuchop?.khp_thoigianden)}
-                </Text>
-              </View>
+          <View style={[styles.field, styles.fieldWide]}>
+            <Text style={styles.label}>Chủ trì</Text>
+            <Text style={styles.value}>{chuTriLine}</Text>
+          </View>
 
-              <View style={styles.field}>
-                <Text style={styles.label}>Địa điểm</Text>
-                <Text style={styles.value}>{meetingLocation || '—'}</Text>
-              </View>
-
-              <View style={styles.field}>
-                <Text style={styles.label}>Chủ trì</Text>
-                <Text style={styles.value}>{chuTriLine}</Text>
-              </View>
-
-              {!!khtochuchop?.khp_trolyST && (
-                <View style={styles.field}>
-                  <Text style={styles.label}>Trợ lý</Text>
-                  <Text style={styles.value}>{khtochuchop.khp_trolyST}</Text>
-                </View>
-              )}
-
-              {!!khtochuchop?.khp_loaicuochopST && (
-                <View style={styles.field}>
-                  <Text style={styles.label}>Loại cuộc họp</Text>
-                  <Text style={styles.value}>{khtochuchop.khp_loaicuochopST}</Text>
-                </View>
-              )}
-            </ScrollView>
-          ) : (
-            // Sơ đồ chỗ ngồi — intentionally left blank for now.
-            <View style={[styles.body, styles.seatingChartBox]} />
+          {!!khtochuchop?.khp_trolyST && (
+            <View style={styles.field}>
+              <Text style={styles.label}>Trợ lý</Text>
+              <Text style={styles.value}>{khtochuchop.khp_trolyST}</Text>
+            </View>
           )}
 
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Đóng</Text>
-          </TouchableOpacity>
+          {!!khtochuchop?.khp_loaicuochopST && (
+            <View style={styles.field}>
+              <Text style={styles.label}>Loại cuộc họp</Text>
+              <Text style={styles.value}>{khtochuchop.khp_loaicuochopST}</Text>
+            </View>
+          )}
         </View>
-      </TouchableOpacity>
-    </Modal>
+      ) : (
+        // Sơ đồ chỗ ngồi — intentionally left blank for now.
+        <View style={styles.seatingChartBox} />
+      )}
+    </AppModal>
   );
 };
 
