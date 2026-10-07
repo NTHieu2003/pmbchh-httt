@@ -113,7 +113,10 @@ ongoing feature parity work.
 
 ## 3. Backend contract notes (from pmbc_web + fw-service source, verified against real server)
 
-- **Base URL**: `src/constants/env.ts` → `API_URL: 'http://103.124.94.201:8888'`. This is the
+- **Base URL**: `src/constants/env.ts` → `API_URL: 'http://192.168.21.152:4200'` — confirmed by
+  the user on 2026-10-07 as the correct host for current work. The other candidates stay commented
+  out in `env.ts`; the notes below about them are history from the export debugging.
+  `http://103.124.94.201:8888` is the
   **same host pmbc_web's production admin panel actually runs on** (confirmed by inspecting a
   real browser request's `Origin`/`Referer` headers during this session's export debugging — see
   §6). A second candidate host, `https://smta.lqdtu.edu.vn:666`, was tried mid-project and is
