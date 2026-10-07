@@ -39,6 +39,12 @@ export const dashboardUserStatsScreenStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  errorText: {
+    fontSize: FontSize.sm,
+    color: APP_COLORS.textPrimary,
+    textAlign: 'center',
+    marginBottom: APP_SPACING.sm,
+  },
   // Matches web's `.du-filter` — date range + đơn vị autocomplete + action
   // buttons, wrapping on narrower widths.
   filterBar: {

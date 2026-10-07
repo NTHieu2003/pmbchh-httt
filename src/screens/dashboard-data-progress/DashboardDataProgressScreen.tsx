@@ -12,11 +12,18 @@ import ActiveContributorsList from './ActiveContributorsList';
 import { dashboardDataProgressScreenStyles as styles } from './DashboardDataProgressScreen.styles';
 import DataTypeChart from './DataTypeChart';
 import KpiCard from './KpiCard';
-import { formatNumber } from './statsCompute';
+import { formatDateDisplay, formatNumber } from './statsCompute';
 import StatsTable from './StatsTable';
 import Top5Grid from './Top5Grid';
 import UnitDetailModal from './UnitDetailModal';
 import { useDashboardDataProgress } from './useDashboardDataProgress.hook';
+import { useDataContribution } from './useDataContribution.hook';
+
+// Local calendar day as yyyy-mm-dd, the shape `formatDateDisplay` expects.
+const toDayKey = (date: Date): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+    date.getDate()
+  ).padStart(2, '0')}`;
 
 // H.I.127 — "Dashboard theo dõi tiến độ xây dựng dữ liệu trên Mobile".
 // Mobile-simplified version of pmbc_web's ThongKeVanbanphapquyComponent:
@@ -53,10 +60,13 @@ const DashboardDataProgressScreen: React.FC = () => {
     selectedUnit,
     openUnitDetail,
     closeUnitDetail,
-    dataTypeStats,
-    activeContributors,
-    isSampleData,
   } = useDashboardDataProgress();
+  const contribution = useDataContribution();
+
+  const reloadAll = () => {
+    loadStats();
+    contribution.reload();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -69,7 +79,7 @@ const DashboardDataProgressScreen: React.FC = () => {
           <Menu size={22} color={APP_COLORS.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Tiến độ xây dựng dữ liệu văn bản pháp quy</Text>
-        <TouchableOpacity style={styles.refreshButton} onPress={loadStats} disabled={isLoading}>
+        <TouchableOpacity style={styles.refreshButton} onPress={reloadAll} disabled={isLoading}>
           <RefreshCw size={16} color={APP_COLORS.textPrimary} />
           <Text style={styles.refreshButtonText}>Làm mới</Text>
         </TouchableOpacity>
@@ -152,10 +162,31 @@ const DashboardDataProgressScreen: React.FC = () => {
             openUnitDetail={openUnitDetail}
           />
 
-          <View style={styles.bottomRow}>
-            <DataTypeChart stats={dataTypeStats} isSample={isSampleData} />
-            <ActiveContributorsList contributors={activeContributors} isSample={isSampleData} />
-          </View>
+          <Text style={styles.periodText}>
+            Thống kê xây dựng dữ liệu trong kỳ: {formatDateDisplay(toDayKey(contribution.fromDate))}
+            {' – '}
+            {formatDateDisplay(toDayKey(contribution.toDate))}
+          </Text>
+          {contribution.isLoading ? (
+            <View style={styles.sectionStateBox}>
+              <ActivityIndicator color={APP_COLORS.chatBrandRed} />
+            </View>
+          ) : contribution.isError ? (
+            <View style={styles.sectionStateBox}>
+              <Text style={styles.errorText}>Không thể tải thống kê xây dựng dữ liệu.</Text>
+              <TouchableOpacity style={styles.retryButton} onPress={contribution.reload}>
+                <Text style={styles.retryButtonText}>Thử lại</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.bottomRow}>
+              <DataTypeChart
+                dataTypes={contribution.dataTypes}
+                total={contribution.totalDocuments}
+              />
+              <ActiveContributorsList contributors={contribution.contributors} />
+            </View>
+          )}
         </KeyboardAwareScrollView>
       )}
 

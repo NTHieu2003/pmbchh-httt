@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ApiDashboardUserApi } from '@/api/apidashboarduser';
+import { ApiDashboardUserApi, toVnDayIso } from '@/api/apidashboarduser';
 
 import type { AppSelectOption } from '@/components/AppSelect';
-import type { ApiDashboardUserItem } from '@/types';
-
-import { STATIC_FEATURE_USAGE } from './featureUsageStatic';
-
-import type { FeatureUsageStat } from './featureUsageStatic';
+import type { ApiDashboardUserItem, TopChucNangItem } from '@/types';
 
 export interface DashboardKpi {
   totalUsers: number;
@@ -39,6 +35,8 @@ const defaultToDate = () => new Date();
 
 export interface UseDashboardUserStatsResult {
   isLoading: boolean;
+  // Request failed or the backend answered result.code !== '00'.
+  isError: boolean;
   kpi: DashboardKpi;
   lstTheoDonVi: ApiDashboardUserItem[];
   lstTheoNguoiDung: ApiDashboardUserItem[];
@@ -58,23 +56,25 @@ export interface UseDashboardUserStatsResult {
   doSearch: () => void;
   doRefresh: () => void;
 
-  // "Loại chức năng hay được sử dụng" chart — static until the backend
-  // API exists (see featureUsageStatic.ts); `isFeatureUsageSample` drives
-  // the "Dữ liệu mẫu" chip.
-  featureUsage: FeatureUsageStat[];
-  isFeatureUsageSample: boolean;
+  // "Top 10 chức năng" chart — `lstTopChucNang` of the same getData
+  // response, already sorted by soThaoTac descending (max 10, empty when
+  // the period has no feature-attributed actions).
+  topChucNang: TopChucNangItem[];
 }
 
 // Mirrors pmbc_web's DashboardUserComponent — filter bar (Từ ngày/Đến ngày/
 // Đơn vị + Tìm kiếm/Làm mới), KPI cards and the two Top-5 tables. The period
 // line, both charts and the Excel/PDF export card are web-only (dropped
-// per explicit scope cut).
+// per explicit scope cut). Every getData call writes a history-log record
+// on the backend, so it is only called on mount and on Tìm kiếm/Làm mới.
 export const useDashboardUserStats = (): UseDashboardUserStatsResult => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [kpi, setKpi] = useState<DashboardKpi>(EMPTY_KPI);
   const [lstTheoDonVi, setLstTheoDonVi] = useState<ApiDashboardUserItem[]>([]);
   const [lstTheoNguoiDung, setLstTheoNguoiDung] = useState<ApiDashboardUserItem[]>([]);
   const [lstDonViFilter, setLstDonViFilter] = useState<ApiDashboardUserItem[]>([]);
+  const [topChucNang, setTopChucNang] = useState<TopChucNangItem[]>([]);
 
   const [fromDate, setFromDate] = useState<Date>(defaultFromDate);
   const [toDate, setToDate] = useState<Date>(defaultToDate);
@@ -83,9 +83,10 @@ export const useDashboardUserStats = (): UseDashboardUserStatsResult => {
 
   const loadData = useCallback((from: Date, to: Date, dept: string) => {
     setIsLoading(true);
+    setIsError(false);
     ApiDashboardUserApi.getData({
-      fromDate: from.toISOString(),
-      toDate: to.toISOString(),
+      fromDate: toVnDayIso(from),
+      toDate: toVnDayIso(to),
       deptCode: dept,
     })
       .then((res) => {
@@ -106,11 +107,14 @@ export const useDashboardUserStats = (): UseDashboardUserStatsResult => {
         setLstTheoDonVi((res.lstTheoDonVi ?? []).filter(Boolean));
         setLstTheoNguoiDung((res.lstTheoNguoiDung ?? []).filter(Boolean));
         setLstDonViFilter((res.lstDonViFilter ?? []).filter(Boolean));
+        setTopChucNang((res.lstTopChucNang ?? []).filter(Boolean));
       })
       .catch(() => {
         setKpi(EMPTY_KPI);
         setLstTheoDonVi([]);
         setLstTheoNguoiDung([]);
+        setTopChucNang([]);
+        setIsError(true);
       })
       .finally(() => setIsLoading(false));
   }, []);
@@ -176,6 +180,7 @@ export const useDashboardUserStats = (): UseDashboardUserStatsResult => {
 
   return {
     isLoading,
+    isError,
     kpi,
     lstTheoDonVi,
     lstTheoNguoiDung,
@@ -192,7 +197,6 @@ export const useDashboardUserStats = (): UseDashboardUserStatsResult => {
     onClearDonVi,
     doSearch,
     doRefresh,
-    featureUsage: STATIC_FEATURE_USAGE,
-    isFeatureUsageSample: true,
+    topChucNang,
   };
 };

@@ -7,6 +7,9 @@ export interface HorizontalBarChartItem {
   key: string;
   label: string;
   value: number;
+  // % to print next to the value when the source provides it (e.g. a share
+  // of a total wider than the listed items); computed from the items if omitted.
+  share?: number;
 }
 
 export interface HorizontalBarChartProps {
@@ -14,6 +17,8 @@ export interface HorizontalBarChartProps {
   items: HorizontalBarChartItem[];
   // Unit shown in the "Tổng cộng N <unit>" subtitle, e.g. "văn bản".
   unit: string;
+  // Overrides the subtitle's total (default: sum of the items).
+  total?: number;
   // Shows a "Dữ liệu mẫu" chip next to the title while data is static.
   isSample?: boolean;
   emptyText?: string;
@@ -33,6 +38,7 @@ const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
   title,
   items,
   unit,
+  total: totalOverride,
   isSample,
   emptyText = 'Chưa có dữ liệu.',
   labelWidth = 110,
@@ -42,10 +48,10 @@ const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
     const s = [...items].sort((a, b) => b.value - a.value);
     return {
       sorted: s,
-      total: s.reduce((sum, item) => sum + item.value, 0),
+      total: totalOverride ?? s.reduce((sum, item) => sum + item.value, 0),
       max: s[0]?.value ?? 0,
     };
-  }, [items]);
+  }, [items, totalOverride]);
 
   return (
     <View style={[styles.section, style]}>
@@ -67,7 +73,8 @@ const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
         <View style={styles.chart}>
           {sorted.map((item) => {
             const widthPercent = max > 0 ? (item.value / max) * 100 : 0;
-            const share = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
+            const share =
+              item.share ?? (total > 0 ? ((item.value / total) * 100).toFixed(1) : '0');
             return (
               <View key={item.key} style={styles.row}>
                 <Text style={[styles.label, { width: labelWidth }]} numberOfLines={1}>
